@@ -11,7 +11,8 @@
 		"random_seed": 1337
 	},
 	"dataset": {
-		"batch_size": 4
+		"batch_size": 4,
+		"num_classes": 2
 	},
 	"LeNet17": {
 		"dropout": 0.3,
