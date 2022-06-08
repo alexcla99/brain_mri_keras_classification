@@ -1,4 +1,4 @@
-# Compairing performances across multiple Keras models by training them and applying transfer learning on brain MRI datasets.
+# Compairing performances across multiple Keras models by training them and applying transfer learning on 3D images datasets.
 
 Author: alexcla99
 Version: 1.0.0
@@ -14,8 +14,8 @@ Version: 1.0.0
 +--- tl_data/                          # The folder containing the dataset for transfer learning
 +--- __init__.py                       # An empty file to make this directory being a Python library
 +--- dataset.py                        # The dataset loader
-+--- preprocess_tl_data_to_numpy.py    # A script to preprocess the Anoxia dataset and store it into numpy files
-+--- preprocess_train_data_to_numpy.py # A script to preprocess the CT-scans dataset and store it into numpy files
++--- preprocess_tl_data_to_numpy.py    # A script to preprocess the tl dataset and store it into numpy files
++--- preprocess_train_data_to_numpy.py # A script to preprocess the train dataset and store it into numpy files
 +--- README.md                         # This file
 +--- requirements.txt                  # The Python libraries to be installed in order to run the project
 +--- settings.json                     # The settings of the model and the train phase
@@ -46,7 +46,7 @@ Train a model:
 python3 train.py <model:str>
 # Example: python3 train.py LeNet17
 ```
-Data to be used are selected from the "tl_data" folder and results are saved in the "results" folder.
+Data to be used are selected from the "train_data" folder and results are saved in the "results" folder.
 
 Available networks:
 See the `models` folder.
@@ -56,7 +56,7 @@ Apply transfer learning on a model:
 python3 transfer_learn.py <model:str>
 # Example: python3 transfer_learn.py LeNet17
 ```
-Data to be used are selected from the "train_data" folder and results are saved in the "results" folder.
+Data to be used are selected from the "tl_data" folder and results are saved in the "results" folder.
 
 Test a trained model:
 ```Shell
