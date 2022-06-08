@@ -5,7 +5,9 @@ from tensorflow.keras import layers
 
 def get_model(img_size:list) -> keras.Model:
     """Instanciate a LeNet-like 3D CNN architecture with 17 layers."""
-    dropout = load_params()["model"]["dropout"]
+    params = load_params()
+    dropout = params["model"]["dropout"]
+    num_classes = params["dataset"]["num_classes"]
     # Input layer
     inputs = keras.Input(tuple(img_size))
     # First convolutional block
@@ -28,7 +30,7 @@ def get_model(img_size:list) -> keras.Model:
     x = layers.GlobalAveragePooling3D()(x)
     x = layers.Dense(units=512, activation="relu")(x)
     x = layers.Dropout(dropout)(x)
-    outputs = layers.Dense(units=1, acivation="sigmoid")(x)
+    outputs = layers.Dense(units=num_classes, acivation="sigmoid")(x)
     # Define and return the model
     model = keras.Model(inputs, outputs, name="LeNet17")
     return model
