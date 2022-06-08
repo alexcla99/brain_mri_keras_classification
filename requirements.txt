@@ -1,0 +1,2 @@
+tensorflow==2.8.0 # The backend used to compute models
+numpy==1.22.4     # Library used to do matrixes computations
