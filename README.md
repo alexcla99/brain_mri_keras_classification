@@ -1,6 +1,6 @@
 # Compairing performances across multiple Keras models by training them and applying transfer learning on 3D images datasets.
 
-Author: alexcla99
+Author: alexcla99  
 Version: 1.0.0
 
 ### Folder content:
