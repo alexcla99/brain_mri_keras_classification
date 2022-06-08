@@ -12,8 +12,8 @@ if __name__ == "__main__":
     data_dir = settings["metadata"]["fine_tune_data_dir"]
     coma_data = [load_nii(e) for e in glob(os.path.join(data_dir, "coma", "*.nii"))]
     control_data = [load_nii(e) for e in glob(os.path.join(data_dir, "control", "*.nii"))]
-    coma_labels = [1. for _ in range(len(coma_data))]
-    control_labels = [0. for _ in range(len(control_data))]
+    coma_labels = [[0., 1.] for _ in range(len(coma_data))]
+    control_labels = [[1., 0.] for _ in range(len(control_data))]
     assert len(coma_data) + len(control_data) == len(coma_labels) + len(control_labels)
     # Load settings
     settings = load_params("settings.json")["preprocessing"]
