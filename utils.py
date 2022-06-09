@@ -28,6 +28,7 @@ def load_nii(path:str, new_size=None) -> np.ndarray:
     # Normalize data size if specified
     if new_size is not None:
         data = np.resize(data, tuple(new_size)) # TODO: resize_volume
+        data = np.rot90(data, axes=[1, 2])
     # Min-max normalize data
     data = (data - data.min()) / (data.max() - data.min())
     # Expand data dimensions
