@@ -1,5 +1,6 @@
 from utils import info, load_params, mcc
 from dataset import load_dataset
+from tf_config import tf_configure
 
 from tensorflow import keras
 import tensorflow as tf
@@ -41,7 +42,7 @@ if __name__ == "__main__":
             mirrored_strategy = tf.distribute.MirroredStrategy()
             with mirrored_strategy.scope():
                 model = keras.models.load_model(os.path.join(results_dir, model_name, "%s_train.h5" % model_name))
-            info(model.summary)
+            info(model.summary())
             # Freeze the model except its classifier (the four last layers)
             info("Freezing the selected model except its classifier")
             model.trainable = False
