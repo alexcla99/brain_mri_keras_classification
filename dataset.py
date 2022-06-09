@@ -4,6 +4,8 @@ import tensorflow as tf
 import numpy as np
 import os
 
+AUTOTUNE = tf.data.experimental.AUTOTUNE
+
 def load_dataset(src:str) -> (tf.data.Dataset, tf.data.Dataset):
     """Instanciate both train and validation data loaders."""
     x_train = np.load(os.path.join(src, "x_train.npy"))
@@ -15,8 +17,8 @@ def load_dataset(src:str) -> (tf.data.Dataset, tf.data.Dataset):
     val_loader = tf.data.Dataset.from_tensor_slices((x_val, y_val))
     batch_size = load_params()["dataset"]["batch_size"]
     # Return both datasets
-    train_dataset = (train_loader.batch(batch_size).prefetch(2))
-    val_dataset = (val_loader.batch(batch_size).prefetch(2))
+    train_dataset = (train_loader.batch(batch_size).prefetch(buffer_size=AUTOTUNE))
+    val_dataset = (val_loader.batch(batch_size).prefetch(buffer_size=AUTOTUNE))
     return train_dataset, val_dataset
 
 def get_test_dataset(src:str) -> tf.data.Dataset:
@@ -27,5 +29,5 @@ def get_test_dataset(src:str) -> tf.data.Dataset:
     test_loader = tf.data.Dataset.from_tensor_slices((x_test, y_test))
     batch_size = load_params()["dataset"]["batch_size"]
     # return the dataset
-    test_dataset = (test_loader.batch(batch_size).prefetch(2))
+    test_dataset = (test_loader.batch(batch_size).prefetch(buffer_size=AUTOTUNE))
     return test_dataset
