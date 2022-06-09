@@ -1,5 +1,6 @@
 from utils import info, load_params
 from dataset import get_test_dataset
+from tf_config import tf_configure
 
 import os, sys, traceback
 
@@ -18,6 +19,9 @@ if __name__ == "__main__":
     else:
         model_name = str(sys.argv[1])
         try:
+            # Starting a fresh session
+            tf.keras.backend.clear_session()
+            tf_configure()
             # Load the test dataset
             info("Loading the test dataset")
             test_dataset = get_test_dataset(tl_data_dir)
@@ -26,7 +30,7 @@ if __name__ == "__main__":
             mirrored_strategy = tf.distribute.MirroredStrategy()
             with mirrored_strategy.scope():
                 model = keras.models.load_model(os.path.join(results_dir, model_name, "%s_tl.h5" % model_name))
-            info(model.summary)
+            info(model.summary())
             # Make predictions
             info("Making predictions")
             predictions = list()
