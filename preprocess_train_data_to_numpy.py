@@ -10,7 +10,7 @@ if __name__ == "__main__":
     info("Starting preprocessing")
     settings = load_params("settings.json")
     data_dir = settings["metadata"]["train_data_dir"]
-    normalization_size = settings["metadata"]["normalization_size"]
+    normalization_size = tuple(settings["metadata"]["normalization_size"])
     abnormal_data = [load_nii(e, normalization_size) for e in glob(os.path.join(data_dir, "abnormal", "*.nii"))]
     control_data = [load_nii(e, normalization_size) for e in glob(os.path.join(data_dir, "control", "*.nii"))]
     abnormal_labels = [[0., 1.] for _ in range(len(abnormal_data))]
