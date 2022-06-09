@@ -1,5 +1,6 @@
 from utils import info, load_params, mcc
 from dataset import load_dataset
+from tf_config import tf_configure
 
 from tensorflow import keras
 import tensorflow as tf
@@ -44,7 +45,7 @@ if __name__ == "__main__":
             mirrored_strategy = tf.distribute.MirroredStrategy()
             with mirrored_strategy.scope():
                 model = get_model([113, 137, 113, 1])#train_dataset.get_single_element().shape)
-            info(model.summary)
+            info(model.summary())
             # Compile the model
             info("Compiling the model")
             lr_schedule = keras.optimizers.schedules.ExponentialDecay(
