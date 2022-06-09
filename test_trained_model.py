@@ -1,7 +1,7 @@
 from utils import info, load_params
 from dataset import get_test_dataset
 
-import os, sys
+import os, sys, traceback
 
 if __name__ == "__main__":
     """Main program to test any trained model from scratch."""
@@ -23,7 +23,9 @@ if __name__ == "__main__":
             test_dataset = get_test_dataset(train_data_dir)
             # Load the selected model
             info("Loading the selected model (%s)" % model_name)
-            model.load_model(os.path.join(results_dir, model_name, "%s_train.h5" % model_name))
+            mirrored_strategy = tf.distribute.MirroredStrategy()
+            with mirrored_strategy.scope():
+                model = keras.models.load_model(os.path.join(results_dir, model_name, "%s_train.h5" % model_name))
             info(model.summary)
             # Make predictions
             info("Making predictions")
@@ -45,4 +47,4 @@ if __name__ == "__main__":
             # End of the program
             info("Test of the trained model done")
         except:
-            info(traceback.format_exc(), state=1)
+            info(traceback.format_exc(), status=1)
