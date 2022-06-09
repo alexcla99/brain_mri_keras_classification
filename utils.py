@@ -1,3 +1,5 @@
+from math import sqrt
+import tensorflow as tf
 import numpy as np
 import nibabel as nib
 import json
@@ -22,12 +24,12 @@ def load_params(src:str=SETTINGS_FILE) -> dict:
         handle.close()
     return params
 
-def load_nii(path:str, new_size=None) -> np.ndarray:
+def load_nii(path:str, new_size:tuple=None) -> np.ndarray:
     """Load a nifti file into a numpy array."""
     data = np.asarray(nib.load(path).dataobj, dtype=np.float32)
     # Normalize data size if specified
     if new_size is not None:
-        data = np.resize(data, tuple(new_size)) # TODO: resize_volume
+        data = np.resize(data, new_size) # TODO: resize_volume
         data = np.rot90(data, axes=[1, 2])
     # Min-max normalize data
     data = (data - data.min()) / (data.max() - data.min())
@@ -59,3 +61,20 @@ def load_nii(path:str, new_size=None) -> np.ndarray:
 #     return img
 
 # TODO: data augmentation
+
+def mcc(y_true:tf.Tensor, y_pred:tf.Tensor) -> float:
+    tp = 0
+    tn = 0
+    fp = 0
+    fn = 0
+    for yt, yp in zip(y_true, y_pred):
+        if (yt and yp) == 0.:
+            tn += 1
+        elif (yt and yp) == 1.:
+            tp += 1
+        elif yt == 1. and yp == 0.:
+            fn += 1
+        elif yt == 0. and yp == 1.:
+            fp += 1
+    m = (tp * tn - fp * fn) / sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+    return m
