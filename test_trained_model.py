@@ -28,13 +28,19 @@ if __name__ == "__main__":
             # Make predictions
             info("Making predictions")
             predictions = list()
+            ground_truths = list()
             for e in test_dataset:
-                predictions.append(model.predict(e)[0])
-            # Save predictions
+                predictions.append(model.predict(e))
+                ground_truths.append(e[1])
+            # Save predictions and ground truths
             info("Saving predictions")
             np.save(
             	os.path.join(results_dir, "test_trained_model_predictions.npy"),
             	np.ndarray(predictions, dtype=np.float32), allow_pickle=False
+            )
+            np.save(
+                os.path.join(results_dir, "test_trained_model_ground_truths.npy")
+                np.ndarray(ground_truths, dtype=np.float32), allow_pickle=False
             )
             # End of the program
             info("Test of the trained model done")
