@@ -68,6 +68,7 @@ def mcc(y_true:tf.Tensor, y_pred:tf.Tensor) -> float:
     fp = 0
     fn = 0
     for yt, yp in zip(y_true, y_pred):
+        yp = 1. if yp >= .5 else 0.
         if (yt and yp) == 0.:
             tn += 1
         elif (yt and yp) == 1.:
