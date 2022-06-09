@@ -9,7 +9,7 @@ if __name__ == "__main__":
     """Load data and build the train / val / test subsets."""
     info("Starting preprocessing")
     settings = load_params("settings.json")
-    data_dir = settings["metadata"]["fine_tune_data_dir"]
+    data_dir = settings["metadata"]["tl_data_dir"]
     coma_data = [load_nii(e) for e in glob(os.path.join(data_dir, "coma", "*.nii"))]
     control_data = [load_nii(e) for e in glob(os.path.join(data_dir, "control", "*.nii"))]
     coma_labels = [[0., 1.] for _ in range(len(coma_data))]
