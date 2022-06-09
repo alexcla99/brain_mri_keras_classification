@@ -1,9 +1,9 @@
-from utils import info, load_params
+from utils import info, load_params, mcc
 from dataset import load_dataset
 
 from tensorflow import keras
-import tensorflow_addons as tfa
-import os, sys, json
+import tensorflow as tf
+import os, sys, json, traceback
 
 if __name__ == "__main__":
     """Main program to transfer learn any model."""
@@ -20,6 +20,9 @@ if __name__ == "__main__":
     else:
         model_name = str(sys.argv[1])
         try:
+            # Starting a fresh session
+            tf.keras.backend.clear_session()
+            tf_configure()
             # Check if the selected model exists
             assert(model_name in available_models)
             # Load params
@@ -28,14 +31,16 @@ if __name__ == "__main__":
             # Build both train and validation datasets
             info("Building datasets")
             train_dataset, val_dataset = load_dataset(train_data_dir)
-            assert(train_dataset.get_single_element().shape == val_dataset.get_single_element().shape)
+            # assert(train_dataset.get_single_element().shape == val_dataset.get_single_element().shape)
             info("Using %d train samples and %d validation samples" % (
                 len([e for e in train_dataset]),
                 len([e for e in val_dataset])
             ))
             # Load the selected model
             info("Loading the selected model (%s)" % model_name)
-            model.load_model(os.path.join(results_dir, model_name, "%s_train.h5" % model_name))
+            mirrored_strategy = tf.distribute.MirroredStrategy()
+            with mirrored_strategy.scope():
+                model = keras.models.load_model(os.path.join(results_dir, model_name, "%s_train.h5" % model_name))
             info(model.summary)
             # Freeze the model except its classifier (the four last layers)
             info("Freezing the selected model except its classifier")
@@ -47,7 +52,7 @@ if __name__ == "__main__":
             model.compile(
                 loss=params["loss"],
                 optimizer=keras.optimizers.Adam(learning_rate=params["tl_lr"]),
-                metrics=params["metrics"]
+                metrics=[mcc]
             )
             # Define callbacks
             info("Defining callbacks")
@@ -56,7 +61,7 @@ if __name__ == "__main__":
                 save_best_only=True
             )
             early_stopping_cb = keras.callbacks.EarlyStopping(
-                monitor="val_%s" % params["metrics"][0],
+                monitor="val_mcc",
                 patience=params["tl_patience"]
             )
             # Train the model
@@ -71,14 +76,14 @@ if __name__ == "__main__":
             )
             # Save model's history
             info("Saving model's history")
-            history = {params["metrics"][0]: [], "val_%s" % params["metrics"][0]: [], "loss": [], "val_loss": []}
-            for i, metric in enumerate([params["metrics"][0], "loss"]):
+            history = {"mcc": [], "val_mcc": [], "loss": [], "val_loss": []}
+            for i, metric in enumerate(["mcc", "loss"]):
                 history[metric].append(model.history.history[metric])
                 history["val_%s" % metric].append(model.history.history["val_%s" % metric])
-            with open(os.path.join(results_dir, model_name, "%s_metrics_tl.json" % model_name)) as handle:
+            with open(os.path.join(results_dir, model_name, "%s_metrics_tl.json" % model_name), "w+") as handle:
                 handle.write(json.dumps(history))
                 handle.close()
             # End of the program
             info("Transfer learning done")
         except:
-            info(traceback.format_exc(), state=1)
+            info(traceback.format_exc(), status=1)
