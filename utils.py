@@ -64,25 +64,24 @@ def load_nii(path:str, new_size:tuple=None) -> np.ndarray:
 # TODO: data augmentation
 
 # Thanks to: stackoverflow.com/questions/39895742/matthews-correlation-coefficient-with-keras
-def mcc(y_true, y_pred):
+def mcc(y_true:tf.Tensor, y_pred:tf.Tensor) -> tf.Tensor:
     """Compute the Matthews Correlation Coefficient."""
-    # y_pred_pos = K.round(K.clip(y_pred, 0, 1))
-    # y_pred_neg = 1 - y_pred_pos
-    # y_pos = K.round(K.clip(y_true, 0, 1))
-    # y_neg = 1 - y_pos
-    # tp = K.sum(y_pos * y_pred_pos)
-    # tn = K.sum(y_neg * y_pred_neg)
-    # fp = K.sum(y_neg * y_pred_pos)
-    # fn = K.sum(y_pos * y_pred_neg)
-    
-    y_pred = 0. if y_pred < .5 else 1.
-    y_pred_neg = 1. - y_pred
-    y_neg = 1. - y_true
-    tp = K.sum(y_true * y_pred)
-    tn = K.sum(y_neg * y_pred_neg)
-    fp = K.sum(y_neg * y_pred)
-    fn = K.sum(y_true * y_pred_neg)
+    y_pred = tf.map_fn(lambda x: 1. if x >= .5 else 0., y_pred, dtype=tf.float32)
 
+    # y_pred = y_pred.numpy()
+    # y_pred = np.array([lambda x: 1. if x >= .5 else 0. for x in y_pred], dtype=np.float32)
+    # y_pred = tf.convert_to_tensor(y_pred)
+
+    # y_pred = tf.where(y_pred >= .5, 1., 0.)
+
+    y_pred_pos = K.round(K.clip(y_pred, 0., 1.))
+    y_pred_neg = 1 - y_pred_pos
+    y_pos = K.round(K.clip(y_true, 0., 1.))
+    y_neg = 1 - y_pos
+    tp = K.sum(y_pos * y_pred_pos)
+    tn = K.sum(y_neg * y_pred_neg)
+    fp = K.sum(y_neg * y_pred_pos)
+    fn = K.sum(y_pos * y_pred_neg)
     numerator = (tp * tn - fp * fn)
     denominator = K.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
-    return numerator / denominator #(denominator + K.epsilon())
+    return numerator / (denominator + K.epsilon())
