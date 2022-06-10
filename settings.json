@@ -4,6 +4,7 @@
 		"train_data_dir": "train_data",
 		"tl_data_dir": "tl_data",
 		"normalization_size": [113, 113, 137],
+		"img_size": [113, 137, 113],
 		"results_dir": "results"
 	},
 	"preprocessing": {
