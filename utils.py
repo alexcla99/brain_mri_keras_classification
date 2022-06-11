@@ -1,3 +1,4 @@
+from scipy import ndimage
 from math import sqrt
 import tensorflow.keras.backend as K
 import tensorflow as tf
@@ -25,41 +26,36 @@ def load_params(src:str=SETTINGS_FILE) -> dict:
         handle.close()
     return params
 
-def load_nii(path:str, new_size:tuple=None) -> np.ndarray:
+def load_nii(path:str, normalisation_size:tuple=None) -> np.ndarray:
     """Load a nifti file into a numpy array."""
     data = np.asarray(nib.load(path).dataobj, dtype=np.float32)
-    # Normalize data size if specified
-    if new_size is not None:
-        data = np.resize(data, new_size) # TODO: resize_volume
-        data = np.rot90(data, axes=[1, 2])
     # Min-max normalize data
     data = (data - data.min()) / (data.max() - data.min())
+    # Size normalization
+    if normalisation_size is not None:
+        data = resize_volume(data, normalisation_size)
     # Expand data dimensions
     data = np.expand_dims(data, axis=-1)
     return data
 
-# def resize_volume(img):
-#     """Resize across z-axis"""
-#     # Set the desired depth
-#     desired_depth = 64
-#     desired_width = 128
-#     desired_height = 128
-#     # Get current depth
-#     current_depth = img.shape[-1]
-#     current_width = img.shape[0]
-#     current_height = img.shape[1]
-#     # Compute depth factor
-#     depth = current_depth / desired_depth
-#     width = current_width / desired_width
-#     height = current_height / desired_height
-#     depth_factor = 1 / depth
-#     width_factor = 1 / width
-#     height_factor = 1 / height
-#     # Rotate
-#     img = ndimage.rotate(img, 90, reshape=False)
-#     # Resize across z-axis
-#     img = ndimage.zoom(img, (width_factor, height_factor, depth_factor), order=1)
-#     return img
+def resize_volume(img:np.array, new_size:tuple) -> np.array:
+    """Resize across z-axis"""
+    # Get current depth
+    current_depth = img.shape[-1]
+    current_width = img.shape[0]
+    current_height = img.shape[1]
+    # Compute depth factor
+    depth = current_depth / new_size[-1] # Desired depth
+    width = current_width / new_size[0] # Desired width
+    height = current_height / new_size[1] # Desired height
+    depth_factor = 1 / depth
+    width_factor = 1 / width
+    height_factor = 1 / height
+    # Rotate
+    img = ndimage.rotate(img, 90, reshape=False)
+    # Resize across z-axis
+    img = ndimage.zoom(img, (width_factor, height_factor, depth_factor), order=1)
+    return img
 
 # TODO: data augmentation
 
