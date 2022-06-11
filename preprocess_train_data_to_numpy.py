@@ -8,17 +8,20 @@ import os
 if __name__ == "__main__":
     """Load data and build the train / val / test subsets."""
     info("Starting preprocessing")
+    # Load settings
     settings = load_params("settings.json")
     data_dir = settings["metadata"]["train_data_dir"]
-    # normalization_size = tuple(settings["metadata"]["normalization_size"])
-    abnormal_data = [load_nii(e) for e in glob(os.path.join(data_dir, "abnormal", "*.nii"))] # TODO normalization_size
-    control_data = [load_nii(e) for e in glob(os.path.join(data_dir, "control", "*.nii"))] # TODO normalization_size
+    data_rep = settings["preprocessing"]["data_rep"]
+    random_seed = settings["preprocessing"]["random_seed"]
+    normalization_size = tuple(settings["metadata"]["normalization_size"])
+    del settings
+    # 
+    abnormal_data = [load_nii(e, normalization_size) for e in glob(os.path.join(data_dir, "abnormal", "*.nii"))]
+    control_data = [load_nii(e, normalization_size) for e in glob(os.path.join(data_dir, "control", "*.nii"))]
+    del normalization_size
     abnormal_labels = [1. for _ in range(len(abnormal_data))]
     control_labels = [0. for _ in range(len(control_data))]
     assert len(abnormal_data) + len(control_data) == len(abnormal_labels) + len(control_labels)
-    # Load settings
-    data_rep = settings["preprocessing"]["data_rep"]
-    random_seed = settings["preprocessing"]["random_seed"]
     # Split them into abnormal and control train / val / test datasets
     # Data are not shuffled yet in order to get the same MRIs in the different subsets
     # So the dataloader can be called several times (in differents tasks)
@@ -28,6 +31,7 @@ if __name__ == "__main__":
         test_size = 1 - data_rep[0],
         shuffle = False
     )
+    del abnormal_labels
     abnormal_x_val, abnormal_x_test, abnormal_y_val, abnormal_y_test = train_test_split(
         abnormal_x_test,
         abnormal_y_test,
@@ -40,12 +44,14 @@ if __name__ == "__main__":
         test_size = 1 - data_rep[0],
         shuffle = False
     )
+    del control_labels
     control_x_val, control_x_test, control_y_val, control_y_test = train_test_split(
         control_x_test,
         control_y_test,
         test_size = data_rep[1]/(data_rep[1]+data_rep[2]),
         shuffle = False
     )
+    del data_rep
     # Create the final train / val / test datasets and shuffle them
     x_train = np.concatenate((abnormal_x_train, control_x_train), axis=0)
     x_val = np.concatenate((abnormal_x_val, control_x_val), axis=0)
@@ -53,18 +59,34 @@ if __name__ == "__main__":
     y_train = np.concatenate((abnormal_y_train, control_y_train), axis=0)
     y_val = np.concatenate((abnormal_y_val, control_y_val), axis=0)
     y_test = np.concatenate((abnormal_y_test, control_y_test), axis=0)
+    del abnormal_x_train
+    del control_x_train
+    del abnormal_x_val
+    del control_x_val
+    del abnormal_x_test
+    del control_x_test
+    del abnormal_y_train
+    del control_y_train
+    del abnormal_y_val
+    del control_y_val
+    del abnormal_y_test
+    del control_y_test
     np.random.seed(random_seed)
     # Shuffle indexes of the train/validation/test dataset
     train_indexes = np.random.permutation(len(x_train))
     val_indexes = np.random.permutation(len(x_val))
     test_indexes = np.random.permutation(len(x_test))
+    del random_seed
     # Shuffle datasets together
     x_train = x_train[train_indexes]
     y_train = y_train[train_indexes]
+    del train_indexes
     x_val = x_val[val_indexes]
     y_val = y_val[val_indexes]
+    del val_indexes
     x_test = x_test[test_indexes]
     y_test = y_test[test_indexes]
+    del test_indexes
     info("Train MRIs: " + str(len(x_train)))
     info("Test MRIs: " + str(len(x_test)))
     info("Validation MRIs: " + str(len(x_val)))
