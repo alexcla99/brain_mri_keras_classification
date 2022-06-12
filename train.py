@@ -12,7 +12,7 @@ if __name__ == "__main__":
     available_models = metadata["available_models"]
     train_data_dir = metadata["train_data_dir"]
     results_dir = metadata["results_dir"]
-    img_size = metadata["img_size"]
+    img_size = metadata["normalization_size"]
     if len(sys.argv) != 2:
         print("Usage: python3 train.py <model:str>")
         print("Example: python3 train.py LeNet17")
@@ -45,7 +45,7 @@ if __name__ == "__main__":
             # elif: # TODO others models
             mirrored_strategy = tf.distribute.MirroredStrategy()
             with mirrored_strategy.scope():
-                model = get_model() # TODO: img_size
+                model = get_model(img_size[0], img_size[1], img_size[-1])
             info(model.summary())
             # Compile the model
             info("Compiling the model")
