@@ -1,5 +1,4 @@
 from scipy import ndimage
-from math import sqrt
 import tensorflow.keras.backend as K
 import tensorflow as tf
 import numpy as np
@@ -35,7 +34,7 @@ def load_nii(path:str, normalisation_size:tuple=None) -> np.ndarray:
     if normalisation_size is not None:
         data = resize_volume(data, normalisation_size)
     # Expand data dimensions
-    data = np.expand_dims(data, axis=-1)
+    # data = np.expand_dims(data, axis=-1)
     return data
 
 def resize_volume(img:np.array, new_size:tuple) -> np.array:
@@ -57,19 +56,15 @@ def resize_volume(img:np.array, new_size:tuple) -> np.array:
     img = ndimage.zoom(img, (width_factor, height_factor, depth_factor), order=1)
     return img
 
+def expand_dims(volume:tf.Tensor) -> tf.Tensor:
+    return tf.expand_dims(volume, axis=3)
+
 # TODO: data augmentation
 
 # Thanks to: stackoverflow.com/questions/39895742/matthews-correlation-coefficient-with-keras
 def mcc(y_true:tf.Tensor, y_pred:tf.Tensor) -> tf.Tensor:
     """Compute the Matthews Correlation Coefficient."""
-    y_pred = tf.map_fn(lambda x: 1. if x >= .5 else 0., y_pred, dtype=tf.float32)
-
-    # y_pred = y_pred.numpy()
-    # y_pred = np.array([lambda x: 1. if x >= .5 else 0. for x in y_pred], dtype=np.float32)
-    # y_pred = tf.convert_to_tensor(y_pred)
-
-    # y_pred = tf.where(y_pred >= .5, 1., 0.)
-
+    y_pred = tf.where(y_pred >= .5, 1., 0.)
     y_pred_pos = K.round(K.clip(y_pred, 0., 1.))
     y_pred_neg = 1 - y_pred_pos
     y_pos = K.round(K.clip(y_true, 0., 1.))
@@ -80,4 +75,5 @@ def mcc(y_true:tf.Tensor, y_pred:tf.Tensor) -> tf.Tensor:
     fn = K.sum(y_pos * y_pred_neg)
     numerator = (tp * tn - fp * fn)
     denominator = K.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
-    return numerator / (denominator + K.epsilon())
+    mcc_value = numerator / (denominator + K.epsilon())
+    return mcc_value
