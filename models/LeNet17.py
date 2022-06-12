@@ -3,13 +3,13 @@ from utils import load_params
 from tensorflow import keras
 from tensorflow.keras import layers
 
-def get_model(img_size:list) -> keras.Model:
+def get_model(width:int, height:int, depth:int) -> keras.Model:
     """Instanciate a LeNet-like 3D CNN architecture with 17 layers."""
     params = load_params()
     dropout = params["LeNet17"]["dropout"]
     num_classes = params["dataset"]["num_classes"]
     # Input layer
-    inputs = keras.Input(tuple(img_size))
+    inputs = keras.Input((width, height, depth, 1))
     # First convolutional block
     x = layers.Conv3D(filters=64, kernel_size=3, activation="relu")(inputs)
     x = layers.MaxPool3D(pool_size=2)(x)
@@ -19,11 +19,11 @@ def get_model(img_size:list) -> keras.Model:
     x = layers.MaxPool3D(pool_size=2)(x)
     x = layers.BatchNormalization()(x)
     # Third convolutional block
-    x = layers.Conv3D(filters=128, kernel_size=3, activation="relu")(inputs)
+    x = layers.Conv3D(filters=128, kernel_size=3, activation="relu")(x)
     x = layers.MaxPool3D(pool_size=2)(x)
     x = layers.BatchNormalization()(x)
     # Fourth convolutional block
-    x = layers.Conv3D(filters=256, kernel_size=3, activation="relu")(inputs)
+    x = layers.Conv3D(filters=256, kernel_size=3, activation="relu")(x)
     x = layers.MaxPool3D(pool_size=2)(x)
     x = layers.BatchNormalization()(x)
     # Classification block
