@@ -15,7 +15,7 @@ if __name__ == "__main__":
     random_seed = settings["preprocessing"]["random_seed"]
     normalization_size = tuple(settings["metadata"]["normalization_size"])
     del settings
-    # 
+    # Loading data
     abnormal_data = [load_nii(e, normalization_size) for e in glob(os.path.join(data_dir, "abnormal", "*.nii"))]
     control_data = [load_nii(e, normalization_size) for e in glob(os.path.join(data_dir, "control", "*.nii"))]
     del normalization_size
