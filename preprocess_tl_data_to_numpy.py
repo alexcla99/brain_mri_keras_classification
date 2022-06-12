@@ -8,17 +8,19 @@ import os
 if __name__ == "__main__":
     """Load data and build the train / val / test subsets."""
     info("Starting preprocessing")
+    # Load settings
     settings = load_params("settings.json")
     data_dir = settings["metadata"]["tl_data_dir"]
+    data_rep = settings["preprocessing"]["data_rep"]
+    random_seed = settings["preprocessing"]["random_seed"]
+    # normalization_size = tuple(settings["metadata"]["normalization_size"])
+    del settings
+    # Loading data
     coma_data = [load_nii(e) for e in glob(os.path.join(data_dir, "coma", "*.nii"))]
     control_data = [load_nii(e) for e in glob(os.path.join(data_dir, "control", "*.nii"))]
     coma_labels = [1. for _ in range(len(coma_data))]
     control_labels = [0. for _ in range(len(control_data))]
     assert len(coma_data) + len(control_data) == len(coma_labels) + len(control_labels)
-    # Load settings
-    settings = load_params("settings.json")["preprocessing"]
-    data_rep = settings["data_rep"]
-    random_seed = settings["random_seed"]
     # Split them into coma and control train / val / test datasets
     # Data are not shuffled yet in order to get the same MRIs in the different subsets
     # So the dataloader can be called several times (in differents tasks)
