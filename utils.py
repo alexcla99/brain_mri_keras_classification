@@ -56,8 +56,9 @@ def resize_volume(img:np.array, new_size:tuple) -> np.array:
     img = ndimage.zoom(img, (width_factor, height_factor, depth_factor), order=1)
     return img
 
-def expand_dims(volume:tf.Tensor) -> tf.Tensor:
-    return tf.expand_dims(volume, axis=3)
+def expand_dims(volume:tf.Tensor, label:tf.Tensor) -> tf.Tensor:
+    volume = tf.expand_dims(volume, axis=3)
+    return volume, label
 
 # TODO: data augmentation
 
