@@ -58,7 +58,7 @@ if __name__ == "__main__":
             model.compile(
                 loss=params["loss"],
                 optimizer=keras.optimizers.Adam(learning_rate=lr_schedule),
-                metrics=[mcc]
+                metrics=["acc"] # [mcc]
             )
             # Define callbacks
             info("Defining callbacks")
@@ -67,7 +67,7 @@ if __name__ == "__main__":
                 save_best_only=True
             )
             early_stopping_cb = keras.callbacks.EarlyStopping(
-                monitor="val_mcc",
+                monitor="val_acc", # "val_mcc"
                 patience=params["patience"]
             )
             # Train the model
