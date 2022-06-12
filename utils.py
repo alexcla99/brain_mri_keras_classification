@@ -64,7 +64,6 @@ def expand_dims(volume:tf.Tensor) -> tf.Tensor:
 # Thanks to: stackoverflow.com/questions/39895742/matthews-correlation-coefficient-with-keras
 def mcc(y_true:tf.Tensor, y_pred:tf.Tensor) -> tf.Tensor:
     """Compute the Matthews Correlation Coefficient."""
-    y_pred = tf.where(y_pred >= .5, 1., 0.)
     y_pred_pos = K.round(K.clip(y_pred, 0., 1.))
     y_pred_neg = 1 - y_pred_pos
     y_pos = K.round(K.clip(y_true, 0., 1.))
