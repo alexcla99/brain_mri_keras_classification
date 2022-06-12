@@ -1,79 +1,95 @@
-from scipy import ndimage
-import tensorflow.keras.backend as K
+from utils import info, load_params, mcc
+from dataset import load_dataset
+from tf_config import tf_configure
+
+from tensorflow import keras
 import tensorflow as tf
-import numpy as np
-import nibabel as nib
-import json
+import os, sys, json, traceback
 
-SETTINGS_FILE = "settings.json"
-
-def info(i:str, status:int=0) -> None:
-    """Display a string as an information / error message / debug message."""
-    if status == 0:
-        print("[INFO] %s" % i)
-    elif status == 1:
-        print("[ERROR] %s" % i)
-    elif status == 2:
-        print("[DEBUG] %s" % i)
+if __name__ == "__main__":
+    """Main program to train any model from scratch."""
+    metadata = load_params()["metadata"]
+    available_models = metadata["available_models"]
+    train_data_dir = metadata["train_data_dir"]
+    results_dir = metadata["results_dir"]
+    img_size = metadata["normalization_size"]
+    if len(sys.argv) != 2:
+        print("Usage: python3 train.py <model:str>")
+        print("Example: python3 train.py LeNet17")
+        print("Available models:")
+        for e in available_models:
+            print("* %s" % e)
     else:
-        print(i)
-
-def load_params(src:str=SETTINGS_FILE) -> dict:
-    """Load the project's settings contained in a JSON file."""
-    with open(src, "r") as handle:
-        params = json.loads(handle.read())
-        handle.close()
-    return params
-
-def load_nii(path:str, normalisation_size:tuple=None) -> np.ndarray:
-    """Load a nifti file into a numpy array."""
-    data = np.asarray(nib.load(path).dataobj, dtype=np.float32)
-    # Min-max normalize data
-    data = (data - data.min()) / (data.max() - data.min())
-    # Size normalization
-    if normalisation_size is not None:
-        data = resize_volume(data, normalisation_size)
-    # Expand data dimensions
-    # data = np.expand_dims(data, axis=-1)
-    return data
-
-def resize_volume(img:np.array, new_size:tuple) -> np.array:
-    """Resize across z-axis"""
-    # Get current depth
-    current_depth = img.shape[-1]
-    current_width = img.shape[0]
-    current_height = img.shape[1]
-    # Compute depth factor
-    depth = current_depth / new_size[-1] # Desired depth
-    width = current_width / new_size[0] # Desired width
-    height = current_height / new_size[1] # Desired height
-    depth_factor = 1 / depth
-    width_factor = 1 / width
-    height_factor = 1 / height
-    # Rotate
-    img = ndimage.rotate(img, 90, reshape=False)
-    # Resize across z-axis
-    img = ndimage.zoom(img, (width_factor, height_factor, depth_factor), order=1)
-    return img
-
-def expand_dims(volume:tf.Tensor, label:tf.Tensor) -> tf.Tensor:
-    volume = tf.expand_dims(volume, axis=3)
-    return volume, label
-
-# TODO: data augmentation
-
-# Thanks to: stackoverflow.com/questions/39895742/matthews-correlation-coefficient-with-keras
-def mcc(y_true:tf.Tensor, y_pred:tf.Tensor) -> tf.Tensor:
-    """Compute the Matthews Correlation Coefficient."""
-    y_pred_pos = K.round(K.clip(y_pred, 0., 1.))
-    y_pred_neg = 1 - y_pred_pos
-    y_pos = K.round(K.clip(y_true, 0., 1.))
-    y_neg = 1 - y_pos
-    tp = K.sum(y_pos * y_pred_pos)
-    tn = K.sum(y_neg * y_pred_neg)
-    fp = K.sum(y_neg * y_pred_pos)
-    fn = K.sum(y_pos * y_pred_neg)
-    numerator = (tp * tn - fp * fn)
-    denominator = K.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
-    mcc_value = numerator / (denominator + K.epsilon())
-    return mcc_value
+        model_name = str(sys.argv[1])
+        try:
+            # Starting a fresh session
+            tf.keras.backend.clear_session()
+            tf_configure()
+            # Check if the selected model exists
+            assert(model_name in available_models)
+            # Load params
+            info("Loading parameters")
+            params = load_params()[model_name]
+            # Build both train and validation datasets
+            info("Building datasets")
+            train_dataset, val_dataset = load_dataset(train_data_dir)
+            # assert(train_dataset.get_single_element().shape == val_dataset.get_single_element().shape)
+            info("Using %d train samples and %d validation samples" % (
+                len([e for e in train_dataset]),
+                len([e for e in val_dataset])
+            ))
+            # Load the selected model
+            info("Loading the selected model (%s)" % model_name)
+            if model_name == available_models[0]:
+                from models.LeNet17 import get_model
+            # elif: # TODO others models
+            mirrored_strategy = tf.distribute.MirroredStrategy()
+            with mirrored_strategy.scope():
+                model = get_model(img_size[0], img_size[1], img_size[-1])
+            info(model.summary())
+            # Compile the model
+            info("Compiling the model")
+            lr_schedule = keras.optimizers.schedules.ExponentialDecay(
+                params["initial_lr"],
+                decay_steps=1e6,
+                decay_rate=.96,
+                staircase=True
+            )
+            model.compile(
+                loss=params["loss"],
+                optimizer=keras.optimizers.Adam(learning_rate=lr_schedule),
+                metrics=["acc"] # [mcc]
+            )
+            # Define callbacks
+            info("Defining callbacks")
+            checkpoint_cb = keras.callbacks.ModelCheckpoint(
+                os.path.join(results_dir, model_name, "%s_train.h5" % model_name),
+                save_best_only=True
+            )
+            early_stopping_cb = keras.callbacks.EarlyStopping(
+                monitor="val_acc", # "val_mcc"
+                patience=params["patience"]
+            )
+            # Train the model
+            info("Training the model")
+            model.fit(
+                train_dataset,
+                validation_data=val_dataset,
+                epochs=params["epochs"],
+                shuffle=True,
+                verbose=2,
+                callbacks=[checkpoint_cb, early_stopping_cb]
+            )
+            # Save model's history
+            info("Saving model's history")
+            history = {"acc": [], "val_acc": [], "loss": [], "val_loss": []} # TODO mcc
+            for i, metric in enumerate(["acc", "loss"]): # TODO mcc
+                history[metric].append(model.history.history[metric])
+                history["val_%s" % metric].append(model.history.history["val_%s" % metric])
+            with open(os.path.join(results_dir, model_name, "%s_metrics_train.json" % model_name), "w+") as handle:
+                handle.write(json.dumps(history))
+                handle.close()
+            # End of the program
+            info("Training done")
+        except:
+            info(traceback.format_exc(), status=1)
