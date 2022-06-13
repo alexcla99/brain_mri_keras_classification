@@ -2,7 +2,7 @@ from scipy import ndimage
 import tensorflow.keras.backend as K
 import tensorflow as tf
 import numpy as np
-import nibabel as nib
+# import nibabel as nib
 import json
 
 SETTINGS_FILE = "settings.json"
@@ -91,19 +91,3 @@ def rotate(volume):
     np.random.seed(random_seed)
     augmented_volume = tf.numpy_function(scipy_rotate, [volume], tf.float32)
     return augmented_volume
-
-# Thanks to: stackoverflow.com/questions/39895742/matthews-correlation-coefficient-with-keras
-def mcc(y_true:tf.Tensor, y_pred:tf.Tensor) -> np.ndarray:
-    """Compute the Matthews Correlation Coefficient."""
-    y_pred_pos = K.round(K.clip(y_pred, 0., 1.))
-    y_pred_neg = 1 - y_pred_pos
-    y_pos = K.round(K.clip(y_true, 0., 1.))
-    y_neg = 1 - y_pos
-    tp = K.sum(y_pos * y_pred_pos)
-    tn = K.sum(y_neg * y_pred_neg)
-    fp = K.sum(y_neg * y_pred_pos)
-    fn = K.sum(y_pos * y_pred_neg)
-    numerator = (tp * tn - fp * fn)
-    denominator = K.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
-    mcc_value = numerator / (denominator + K.epsilon())
-    return tf.get_static_value(mcc_value)
