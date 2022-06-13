@@ -12,7 +12,7 @@ if __name__ == "__main__":
     available_models = metadata["available_models"]
     train_data_dir = metadata["train_data_dir"]
     results_dir = metadata["results_dir"]
-    img_size = metadata["normalization_size"]
+    img_size = metadata["img_size"]
     if len(sys.argv) != 2:
         print("Usage: python3 train.py <model:str>")
         print("Example: python3 train.py LeNet17")
@@ -58,7 +58,7 @@ if __name__ == "__main__":
             model.compile(
                 loss=params["loss"],
                 optimizer=keras.optimizers.Adam(learning_rate=lr_schedule),
-                metrics=["acc"] # [mcc]
+                metrics=[mcc]
             )
             # Define callbacks
             info("Defining callbacks")
@@ -67,7 +67,7 @@ if __name__ == "__main__":
                 save_best_only=True
             )
             early_stopping_cb = keras.callbacks.EarlyStopping(
-                monitor="val_acc", # "val_mcc"
+                monitor="val_mcc",
                 patience=params["patience"]
             )
             # Train the model
