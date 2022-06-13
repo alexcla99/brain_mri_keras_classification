@@ -1,4 +1,4 @@
-from utils import info, load_params, mcc
+from utils import info, load_params
 from dataset import load_dataset
 from tf_config import tf_configure
 
@@ -53,7 +53,7 @@ if __name__ == "__main__":
             model.compile(
                 loss=params["loss"],
                 optimizer=keras.optimizers.Adam(learning_rate=params["tl_lr"]),
-                metrics=[mcc]
+                metrics=[params["metrics"]]
             )
             # Define callbacks
             info("Defining callbacks")
@@ -62,7 +62,7 @@ if __name__ == "__main__":
                 save_best_only=True
             )
             early_stopping_cb = keras.callbacks.EarlyStopping(
-                monitor="val_mcc",
+                monitor="val_%s" % params["metrics"],
                 patience=params["tl_patience"]
             )
             # Train the model
@@ -77,8 +77,8 @@ if __name__ == "__main__":
             )
             # Save model's history
             info("Saving model's history")
-            history = {"mcc": [], "val_mcc": [], "loss": [], "val_loss": []}
-            for i, metric in enumerate(["mcc", "loss"]):
+            history = {params["metrics"]: [], "val_%s" % params["metrics"]: [], "loss": [], "val_loss": []}
+            for i, metric in enumerate([params["metrics"], "loss"]):
                 history[metric].append(model.history.history[metric])
                 history["val_%s" % metric].append(model.history.history["val_%s" % metric])
             with open(os.path.join(results_dir, model_name, "%s_metrics_tl.json" % model_name), "w+") as handle:
