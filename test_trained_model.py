@@ -2,6 +2,9 @@ from utils import info, load_params
 from dataset import get_test_dataset
 from tf_config import tf_configure
 
+from tensorflow import keras
+import tensorflow as tf
+import numpy as np
 import os, sys, traceback
 
 if __name__ == "__main__":
@@ -36,17 +39,21 @@ if __name__ == "__main__":
             predictions = list()
             ground_truths = list()
             for e in test_dataset:
-                predictions.append(model.predict(e))
-                ground_truths.append(e[1])
+                prediction = model.predict(e[0])
+                for p in prediction:
+                    predictions.append(p[0])
+                ground_truth = e[1].numpy()
+                for g in ground_truth:
+                    ground_truths.append(g)
             # Save predictions and ground truths
             info("Saving predictions")
             np.save(
-            	os.path.join(results_dir, "test_trained_model_predictions.npy"),
-            	np.ndarray(predictions, dtype=np.float32), allow_pickle=False
+            	os.path.join(results_dir, model_name, "test_trained_model_predictions.npy"),
+            	np.array(predictions, dtype=np.float32), allow_pickle=False
             )
             np.save(
-                os.path.join(results_dir, "test_trained_model_ground_truths.npy")
-                np.ndarray(ground_truths, dtype=np.float32), allow_pickle=False
+                os.path.join(results_dir, model_name, "test_trained_model_ground_truths.npy"),
+                np.array(ground_truths, dtype=np.float32), allow_pickle=False
             )
             # End of the program
             info("Test of the trained model done")
