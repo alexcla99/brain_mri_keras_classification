@@ -9,15 +9,21 @@ if __name__ == "__main__":
     """Load data and build the train / val / test subsets."""
     info("Starting preprocessing")
     # Load settings
-    settings = load_params("settings.json")
+    settings = load_params()
     data_dir = settings["metadata"]["train_data_dir"]
     data_rep = settings["preprocessing"]["data_rep"]
     random_seed = settings["preprocessing"]["random_seed"]
     normalization_size = tuple(settings["metadata"]["normalization_size"])
     del settings
     # Loading data
-    abnormal_data = [load_nii(e, normalization_size) for e in glob(os.path.join(data_dir, "abnormal", "*.nii"))]
-    control_data = [load_nii(e, normalization_size) for e in glob(os.path.join(data_dir, "control", "*.nii"))]
+    abnormal_data = [
+        load_nii(e, norm_type="ct-threshold", img_size=normalization_size, rotate_axes=[1, 2])
+        for e in glob(os.path.join(data_dir, "abnormal", "*.nii"))
+    ]
+    control_data = [
+        load_nii(e, norm_type="ct-threshold", img_size=normalization_size, rotate_axes=[1, 2])
+        for e in glob(os.path.join(data_dir, "control", "*.nii"))
+    ]
     del normalization_size
     abnormal_labels = [1. for _ in range(len(abnormal_data))]
     control_labels = [0. for _ in range(len(control_data))]
