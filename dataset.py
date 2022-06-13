@@ -18,7 +18,7 @@ def load_dataset(src:str) -> (tf.data.Dataset, tf.data.Dataset):
     batch_size = load_params()["dataset"]["batch_size"]
     # Return both datasets
     train_dataset = (
-        train_loader.map(expand_dims)
+        train_loader.map(expand_dims) # TODO map(rotate) for train dataset
         .batch(batch_size)
         .prefetch(buffer_size=AUTOTUNE)
     )
