@@ -21,6 +21,7 @@ Version: 1.0.0
 +--- settings.json                     # The settings of the model and the train phase
 +--- test_trained_model.py             # A script to test a trained model
 +--- test_transfer_learned_model.py    # A script to test a transfer learned model
++--- tf_config.py                      # A script to configure TensorFlow
 +--- train.py                          # A script to train from scratch a model
 +--- transfer_learn.py                 # A script to apply transfer learning on a model
 +--- utils.py                          # Some utils
