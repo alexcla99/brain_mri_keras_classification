@@ -1,7 +1,7 @@
 # Compairing performances across multiple Keras models by training them and applying transfer learning on 3D images datasets.
 
 Author: alexcla99  
-Version: 1.0.0
+Version: 2.0.0
 
 ### Folder content:
 
@@ -11,19 +11,19 @@ Version: 1.0.0
 |
 +--- results/                          # The folder containing the train, transfer learning and tests results
 +--- train_data/                       # The folder containing the dataset for training from scratch
-+--- tl_data/                          # The folder containing the dataset for transfer learning
++--- ft_data/                          # The folder containing the dataset for fine tuning
 +--- __init__.py                       # An empty file to make this directory being a Python library
 +--- dataset.py                        # The dataset loader
-+--- preprocess_tl_data_to_numpy.py    # A script to preprocess the tl dataset and store it into numpy files
++--- fine_tune.py                      # A script to apply fine tuning on a model
++--- preprocess_ft_data_to_numpy.py    # A script to preprocess the ft dataset and store it into numpy files
 +--- preprocess_train_data_to_numpy.py # A script to preprocess the train dataset and store it into numpy files
 +--- README.md                         # This file
 +--- requirements.txt                  # The Python libraries to be installed in order to run the project
 +--- settings.json                     # The settings of the model and the train phase
 +--- test_trained_model.py             # A script to test a trained model
-+--- test_transfer_learned_model.py    # A script to test a transfer learned model
++--- test_fine_tuned_model.py          # A script to test a fine tuned model
 +--- tf_config.py                      # A script to configure TensorFlow
 +--- train.py                          # A script to train from scratch a model
-+--- transfer_learn.py                 # A script to apply transfer learning on a model
 +--- utils.py                          # Some utils
 ```
 
@@ -40,7 +40,7 @@ Preprocess data:
 ```Shell
 python3 preprocess_<dataset>_to_numpy.py
 ```
-Data are loaded from from train_data or tl_data (depending on which script you want to run) in order to store them in numpy files.
+Data are loaded from from "train_data" or "ft_data" (depending on which script you want to run) in order to store them in numpy files.
 
 Train a model:
 ```Shell
@@ -52,12 +52,12 @@ Data to be used are selected from the "train_data" folder and results are saved 
 Available networks:
 See the `models` folder.
 
-Apply transfer learning on a model:
+Fine tune a model:
 ```Shell
-python3 transfer_learn.py <model:str>
-# Example: python3 transfer_learn.py LeNet17
+python3 fine_tune.py <model:str>
+# Example: python3 fine_tune.py LeNet17
 ```
-Data to be used are selected from the "tl_data" folder and results are saved in the "results" folder.
+Data to be used are selected from the "ft_data" folder and results are saved in the "results" folder.
 
 Test a trained model:
 ```Shell
@@ -65,10 +65,10 @@ python3 test_trained_model.py <model:str>
 # Example: python3 test_trained_model.py LeNet17
 ```
 
-Test a transfer learned model:
+Test a fine tuned model:
 ```Shell
-python3 test_transfer_learned_model.py <model:str>
-# Example: python3 test_transfer_learned_model.py LeNet17
+python3 test_fine_tuned_model.py <model:str>
+# Example: python3 test_fine_tuned_model.py LeNet17
 ```
 
 ### Many thanks to:
