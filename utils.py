@@ -68,11 +68,6 @@ def resize_volume(img:np.array, new_size:tuple) -> np.array:
     img = ndimage.zoom(img, (width_factor, height_factor, depth_factor), order=1)
     return img
 
-def expand_dims(volume:tf.Tensor, label:tf.Tensor) -> tf.Tensor:
-    """Datasets preprocessing by adding a channel."""
-    volume = tf.expand_dims(volume, axis=3)
-    return volume, label
-
 @tf.function
 def rotate(volume):
     """Rotate the volume by a fex degrees."""
@@ -91,3 +86,15 @@ def rotate(volume):
     np.random.seed(random_seed)
     augmented_volume = tf.numpy_function(scipy_rotate, [volume], tf.float32)
     return augmented_volume
+
+def train_preprocessing(volume:tf.Tensor, label:tf.Tensor, augment:bool) -> (tf.Tensor, tf.Tensor):
+    """Preprocessing done for the train dataset."""
+    if augment == True:
+        volume = rotate(volume)
+    volume = volume = tf.expand_dims(volume, axis=-1)
+    return volume, label
+
+def val_test_preprocessing(volume:tf.Tensor, label:tf.Tensor) -> (tf.Tensor, tf.Tensor):
+    """Preprocessing done for both val / test datasets."""
+    volume = volume = tf.expand_dims(volume, axis=-1)
+    return volume, label
