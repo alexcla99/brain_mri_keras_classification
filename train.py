@@ -12,7 +12,7 @@ if __name__ == "__main__":
     available_models = metadata["available_models"]
     train_data_dir = metadata["train_data_dir"]
     results_dir = metadata["results_dir"]
-    img_size = metadata["img_size"]
+    img_size = metadata["normalization_size"]
     if len(sys.argv) != 2:
         print("Usage: python3 train.py <model:str>")
         print("Example: python3 train.py LeNet17")
