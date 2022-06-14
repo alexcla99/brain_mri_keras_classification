@@ -1,4 +1,4 @@
-from utils import load_params, expand_dims, info
+from utils import load_params, info, train_preprocessing, val_test_preprocessing
 
 import tensorflow as tf
 import numpy as np
@@ -6,7 +6,7 @@ import os
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-def load_dataset(src:str) -> (tf.data.Dataset, tf.data.Dataset):
+def load_dataset(src:str, augment:bool=False) -> (tf.data.Dataset, tf.data.Dataset):
     """Instanciate both train and validation data loaders."""
     x_train = np.load(os.path.join(src, "x_train.npy"))
     y_train = np.load(os.path.join(src, "y_train.npy"))
@@ -18,12 +18,12 @@ def load_dataset(src:str) -> (tf.data.Dataset, tf.data.Dataset):
     batch_size = load_params()["dataset"]["batch_size"]
     # Return both datasets
     train_dataset = (
-        train_loader.map(expand_dims) # TODO map(rotate) for train dataset
+        train_loader.map(train_preprocessing(augment))
         .batch(batch_size)
         .prefetch(buffer_size=AUTOTUNE)
     )
     val_dataset = (
-        val_loader.map(expand_dims)
+        val_loader.map(val_test_preprocessing)
         .batch(batch_size)
         .prefetch(buffer_size=AUTOTUNE)
     )
@@ -40,7 +40,7 @@ def get_test_dataset(src:str) -> tf.data.Dataset:
     batch_size = load_params()["dataset"]["batch_size"]
     # return the dataset
     test_dataset = (
-        test_loader.map(expand_dims)
+        test_loader.map(val_test_preprocessing)
         .batch(batch_size)
         .prefetch(buffer_size=AUTOTUNE)
     )
