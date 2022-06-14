@@ -3,7 +3,7 @@
 		"available_models": ["LeNet17"],
 		"train_data_dir": "train_data",
 		"ft_data_dir": "ft_data",
-		"normalization_size": [113, 113, 137],
+		"normalization_size": [128, 128, 64],
 		"img_size": [113, 137, 113],
 		"results_dir": "results"
 	},
