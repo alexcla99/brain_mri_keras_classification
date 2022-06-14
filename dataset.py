@@ -1,4 +1,4 @@
-from utils import load_params, expand_dims
+from utils import load_params, expand_dims, info
 
 import tensorflow as tf
 import numpy as np
@@ -27,6 +27,8 @@ def load_dataset(src:str) -> (tf.data.Dataset, tf.data.Dataset):
         .batch(batch_size)
         .prefetch(buffer_size=AUTOTUNE)
     )
+    info("Train dataset shape: %s" % str(train_dataset.get_shape().as_list()))
+    info("Validation dataset shape: %s" % str(val_dataset.get_shape().as_list()))
     return train_dataset, val_dataset
 
 def get_test_dataset(src:str) -> tf.data.Dataset:
@@ -42,4 +44,5 @@ def get_test_dataset(src:str) -> tf.data.Dataset:
         .batch(batch_size)
         .prefetch(buffer_size=AUTOTUNE)
     )
+    info("Test dataset shape: %s" % str(test_dataset.get_shape().as_list()))
     return test_dataset
