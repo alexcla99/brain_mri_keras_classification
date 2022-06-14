@@ -17,11 +17,11 @@ if __name__ == "__main__":
     del settings
     # Loading data
     abnormal_data = [
-        load_nii(e, norm_type="ct-threshold", img_size=normalization_size, rotate_axes=[1, 2])
+        load_nii(e, norm_type="ct-threshold", img_size=normalization_size)
         for e in glob(os.path.join(data_dir, "abnormal", "*.nii"))
     ]
     control_data = [
-        load_nii(e, norm_type="ct-threshold", img_size=normalization_size, rotate_axes=[1, 2])
+        load_nii(e, norm_type="ct-threshold", img_size=normalization_size)
         for e in glob(os.path.join(data_dir, "control", "*.nii"))
     ]
     del normalization_size
