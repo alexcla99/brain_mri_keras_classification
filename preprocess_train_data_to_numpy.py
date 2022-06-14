@@ -93,9 +93,15 @@ if __name__ == "__main__":
     x_test = x_test[test_indexes]
     y_test = y_test[test_indexes]
     del test_indexes
-    info("Train MRIs: " + str(len(x_train)))
-    info("Test MRIs: " + str(len(x_test)))
-    info("Validation MRIs: " + str(len(x_val)))
+    info("Train MRIs: %s" % str(len(x_train)))
+    info("- %d positive samples" % np.count_nonzero(x_train).shape[0])
+    info("- %d negative samples" % len(x_train) - np.count_nonzero(x_train).shape[0])
+    info("Test MRIs: %s" % str(len(x_test)))
+    info("- %d positive samples" % np.count_nonzero(x_test).shape[0])
+    info("- %d negative samples" % len(x_test) - np.count_nonzero(x_test).shape[0])
+    info("Validation MRIs: %s" % str(len(x_val)))
+    info("- %d positive samples" % np.count_nonzero(x_val).shape[0])
+    info("- %d negative samples" % len(x_val) - np.count_nonzero(x_val).shape[0])
     # Saving data
     np.save(os.path.join(data_dir, "x_train.npy"), x_train, allow_pickle=False)
     np.save(os.path.join(data_dir, "x_val.npy"), x_val, allow_pickle=False)
