@@ -13,6 +13,7 @@ if __name__ == "__main__":
     available_models = metadata["available_models"]
     train_data_dir = metadata["train_data_dir"]
     results_dir = metadata["results_dir"]
+    img_size = metadata["img_size"]
     if len(sys.argv) != 2:
         print("Usage: python3 test_trained_model.py <model:str>")
         print("Example: python3 test_trained_model.py LeNet17")
@@ -30,9 +31,13 @@ if __name__ == "__main__":
             test_dataset = get_test_dataset(train_data_dir)
             # Load the selected model
             info("Loading the selected model (%s)" % model_name)
+            if model_name == available_models[0]:
+                from models.LeNet17 import get_model
+            # elif: # TODO others models
             mirrored_strategy = tf.distribute.MirroredStrategy()
             with mirrored_strategy.scope():
-                model = keras.models.load_model(os.path.join(results_dir, model_name, "%s_train.h5" % model_name))
+                model = get_model(img_size[0], img_size[1], img_size[-1])
+                model = model.load_weights(os.path.join(results_dir, model_name, "%s_train.h5" % model_name))
             info(model.summary())
             # Make predictions
             info("Making predictions")
