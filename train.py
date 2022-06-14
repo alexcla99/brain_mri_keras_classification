@@ -64,7 +64,8 @@ if __name__ == "__main__":
             info("Defining callbacks")
             checkpoint_cb = keras.callbacks.ModelCheckpoint(
                 os.path.join(results_dir, model_name, "%s_train.h5" % model_name),
-                save_best_only=True
+                save_best_only=True,
+                save_weights_only=True
             )
             early_stopping_cb = keras.callbacks.EarlyStopping(
                 monitor="val_%s" % params["metrics"],
