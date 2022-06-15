@@ -32,7 +32,7 @@ if __name__ == "__main__":
             params = load_params()[model_name]
             # Build both train and validation datasets
             info("Building datasets")
-            train_dataset, val_dataset = load_dataset(train_data_dir)
+            train_dataset, val_dataset = load_dataset(train_data_dir, augment=True)
             # assert(train_dataset.get_single_element().shape == val_dataset.get_single_element().shape)
             info("Using %d train samples and %d validation samples" % (
                 len([e for e in train_dataset]),
