@@ -17,9 +17,12 @@ def load_dataset(src:str, augment:bool=False) -> (tf.data.Dataset, tf.data.Datas
     val_loader = tf.data.Dataset.from_tensor_slices((x_val, y_val))
     batch_size = load_params()["dataset"]["batch_size"]
     # Return both datasets
+    if augment == True:
+        train_dataset = train_loader.map(train_preprocessing)
+    else:
+        train_dataset = train_loader.map(val_test_preprocessing)
     train_dataset = (
-        train_loader.map(train_preprocessing(augment))
-        .batch(batch_size)
+        train_dataset.batch(batch_size)
         .prefetch(buffer_size=AUTOTUNE)
     )
     val_dataset = (
@@ -27,8 +30,6 @@ def load_dataset(src:str, augment:bool=False) -> (tf.data.Dataset, tf.data.Datas
         .batch(batch_size)
         .prefetch(buffer_size=AUTOTUNE)
     )
-    info("Train dataset shape: %s" % str(train_dataset.get_shape().as_list()))
-    info("Validation dataset shape: %s" % str(val_dataset.get_shape().as_list()))
     return train_dataset, val_dataset
 
 def get_test_dataset(src:str) -> tf.data.Dataset:
@@ -44,5 +45,4 @@ def get_test_dataset(src:str) -> tf.data.Dataset:
         .batch(batch_size)
         .prefetch(buffer_size=AUTOTUNE)
     )
-    info("Test dataset shape: %s" % str(test_dataset.get_shape().as_list()))
     return test_dataset
