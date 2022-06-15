@@ -2,7 +2,7 @@ from scipy import ndimage
 import tensorflow.keras.backend as K
 import tensorflow as tf
 import numpy as np
-# import nibabel as nib
+import nibabel as nib
 import json
 
 SETTINGS_FILE = "settings.json"
@@ -87,10 +87,9 @@ def rotate(volume):
     augmented_volume = tf.numpy_function(scipy_rotate, [volume], tf.float32)
     return augmented_volume
 
-def train_preprocessing(volume:tf.Tensor, label:tf.Tensor, augment:bool) -> (tf.Tensor, tf.Tensor):
+def train_preprocessing(volume:tf.Tensor, label:tf.Tensor) -> (tf.Tensor, tf.Tensor):
     """Preprocessing done for the train dataset."""
-    if augment == True:
-        volume = rotate(volume)
+    volume = rotate(volume)
     volume = volume = tf.expand_dims(volume, axis=-1)
     return volume, label
 
