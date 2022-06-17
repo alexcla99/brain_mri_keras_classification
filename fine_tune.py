@@ -46,7 +46,7 @@ if __name__ == "__main__":
             mirrored_strategy = tf.distribute.MirroredStrategy()
             with mirrored_strategy.scope():
                 model = get_model(img_size[0], img_size[1], img_size[-1])
-                model = model.load_weights(os.path.join(results_dir, model_name, "%s_train.h5" % model_name))
+                model.load_weights(os.path.join(results_dir, model_name, "%s_train.h5" % model_name))
             info(model.summary())
             # Freeze the model except its classifier (the four last layers)
             info("Freezing the selected model except its classifier")
