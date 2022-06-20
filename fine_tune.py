@@ -6,6 +6,7 @@ from tensorflow import keras
 import tensorflow as tf
 import os, sys, json, traceback
 
+# MODEL FINE TUNING #################################################################################################
 if __name__ == "__main__":
     """Main program to transfer learn any model."""
     metadata = load_params()["metadata"]
@@ -32,11 +33,10 @@ if __name__ == "__main__":
             params = load_params()[model_name]
             # Build both train and validation datasets
             info("Building datasets")
-            train_dataset, val_dataset = load_dataset(train_data_dir)
-            # assert(train_dataset.get_single_element().shape == val_dataset.get_single_element().shape)
+            train_dataset, val_dataset, test_datast = load_dataset(train_data_dir)
             info("Using %d train samples and %d validation samples" % (
-                len([e for e in train_dataset]),
-                len([e for e in val_dataset])
+                len([_ for _ in train_dataset]),
+                len([_ for _ in val_dataset])
             ))
             # Load the selected model
             info("Loading the selected model (%s)" % model_name)
@@ -51,14 +51,16 @@ if __name__ == "__main__":
             # Freeze the model except its classifier (the four last layers)
             info("Freezing the selected model except its classifier")
             model.trainable = False
-            for i in range(4): # TODO different number of layers for others models?
+            for i in range(3): # TODO different number of layers for others models?
                 model.layers[-(1+i)].trainable = True
+            for i in range(len(model.layers)):
+                info("Trainable layer %d: %s" % (i, model.layers[i].trainable))
             # Compile the model
             info("Compiling the model")
             model.compile(
                 loss=params["loss"],
                 optimizer=keras.optimizers.Adam(learning_rate=params["ft_lr"]),
-                metrics=[params["metrics"]]
+                metrics=params["metrics"]
             )
             # Define callbacks
             info("Defining callbacks")
@@ -68,7 +70,7 @@ if __name__ == "__main__":
                 save_weights_only=True
             )
             early_stopping_cb = keras.callbacks.EarlyStopping(
-                monitor="val_%s" % params["metrics"],
+                monitor="val_%s" % params["metrics"][0], # In settings.json, it should be "acc"
                 patience=params["ft_patience"]
             )
             # Train the model
@@ -83,11 +85,11 @@ if __name__ == "__main__":
             )
             # Save model's history
             info("Saving model's history")
-            history = {params["metrics"]: [], "val_%s" % params["metrics"]: [], "loss": [], "val_loss": []}
-            for i, metric in enumerate([params["metrics"], "loss"]):
+            history = {params["metrics"][0]: [], "val_%s" % params["metrics"][0]: [], "loss": [], "val_loss": []}
+            for i, metric in enumerate([params["metrics"][0], "loss"]):
                 history[metric].append(model.history.history[metric])
                 history["val_%s" % metric].append(model.history.history["val_%s" % metric])
-            with open(os.path.join(results_dir, model_name, "%s_metrics_ft.json" % model_name), "w+") as handle:
+            with open(os.path.join(results_dir, model_name, "%s_ft_metrics.json" % model_name), "w+") as handle:
                 handle.write(json.dumps(history))
                 handle.close()
             # End of the program
