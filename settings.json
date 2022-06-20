@@ -20,7 +20,7 @@
 		"initial_lr": 1e-4,
 		"ft_lr": 1e-5,
 		"loss": "binary_crossentropy",
-		"metrics": "acc",
+		"metrics": ["acc"],
 		"patience": 25,
 		"ft_patience": 10,
 		"epochs": 100
