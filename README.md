@@ -65,7 +65,7 @@ python3 test_fine_tuned_model.py <model:str>
 
 ### Many thanks to:
 
-[1] H. Zunair., "3D images classification from CT scans.", [Keras.io](https://keras.io/examples/vision/3D_image_classification/), 2020.  
+[1] H. Zunair., "3D images classification from CT scans.", [keras.io](https://keras.io/examples/vision/3D_image_classification/), 2020.  
 [2] Zunair et al., "Uniformizing Techniques to Process CT scans with 3D CNNs for Tuberculosis Prediction", [arXiv](https://arxiv.org/pdf/2007.13224.pdf), 2020.  
 
 License: [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0).
