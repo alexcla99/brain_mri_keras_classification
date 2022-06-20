@@ -1,5 +1,4 @@
 from scipy import ndimage
-import tensorflow.keras.backend as K
 import tensorflow as tf
 import numpy as np
 import nibabel as nib
@@ -7,6 +6,7 @@ import json
 
 SETTINGS_FILE = "settings.json"
 
+# CUSTOM UTILS ######################################################################################################
 def info(i:str, status:int=0) -> None:
     """Display a string as an information / error message / debug message."""
     if status == 0:
@@ -25,29 +25,23 @@ def load_params(src:str=SETTINGS_FILE) -> dict:
         handle.close()
     return params
 
-def load_nii(
-    path:str,
-    norm_type:str="minmax",
-    img_size:tuple=None,
-    rotate_axes:list=None
-    ) -> np.ndarray:
-    """Load a nifti file into a numpy array."""
-    data = np.asarray(nib.load(path).dataobj, dtype=np.float32)
-    # Min-max normalize data
-    if norm_type == "minmax":
+# DATA PREPROCESSING ################################################################################################
+def load_nii(path:str) -> np.ndarray:
+    """Load a nifti file into an array."""
+    data = nib.load(path).get_fdata()
+    return data
+
+def normalize(data:np.ndarray, method:str="minmax") -> np.ndarray:
+    """Normalize a 3D image according to the specified method."""
+    if method == "minmax":
         data = (data - data.min()) / (data.max() - data.min())
-    elif norm_type == "ct-threshold":
+    elif method == "threshold":
         min_value = -1000
         max_value = 400
         data[data < min_value] = min_value
         data[data > max_value] = max_value
         data = (data - min_value) / (max_value - min_value)
-    # Size normalization
-    if img_size is not None:
-        data = resize_volume(data, img_size)
-    # Matrix rotation
-    if rotate_axes is not None:
-        data = np.rot90(data, axes=rotate_axes)
+    data = data.astype(np.float32)
     return data
 
 def resize_volume(img:np.array, new_size:tuple) -> np.array:
@@ -68,8 +62,20 @@ def resize_volume(img:np.array, new_size:tuple) -> np.array:
     img = ndimage.zoom(img, (width_factor, height_factor, depth_factor), order=1)
     return img
 
+def process_scan(path:str, norm_type:str=None, img_size:tuple=None) -> np.ndarray:
+    """Process a 3D image according to the wanted output."""
+    data = load_nii(path)
+    # Voxels normalization
+    if norm_type is not None:
+        data = normalize(data, method=norm_type)
+    # Size normalization
+    if img_size is not None:
+        data = resize_volume(data, new_size=img_size)
+    return data
+
+# DATASETS PREPROCESSING ############################################################################################
 @tf.function
-def rotate(volume):
+def rotate(volume:tf.Tensor) -> tf.Tensor:
     """Rotate the volume by a fex degrees."""
     def scipy_rotate(volume):
         # Define some rotation angles
