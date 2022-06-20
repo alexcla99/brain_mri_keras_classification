@@ -15,8 +15,6 @@ Version: 2.0.0
 +--- __init__.py                       # An empty file to make this directory being a Python library
 +--- dataset.py                        # The dataset loader
 +--- fine_tune.py                      # A script to apply fine tuning on a model
-+--- preprocess_ft_data_to_numpy.py    # A script to preprocess the ft dataset and store it into numpy files
-+--- preprocess_train_data_to_numpy.py # A script to preprocess the train dataset and store it into numpy files
 +--- README.md                         # This file
 +--- requirements.txt                  # The Python libraries to be installed in order to run the project
 +--- settings.json                     # The settings of the model and the train phase
@@ -35,12 +33,6 @@ Requirements:
 ```Shell
 pip3 install -r requirements
 ```
-
-Preprocess data:
-```Shell
-python3 preprocess_<dataset>_to_numpy.py
-```
-Data are loaded from from "train_data" or "ft_data" (depending on which script you want to run) in order to store them in numpy files.
 
 Train a model:
 ```Shell
