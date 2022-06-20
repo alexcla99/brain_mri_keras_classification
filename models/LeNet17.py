@@ -3,6 +3,7 @@ from utils import load_params
 from tensorflow import keras
 from tensorflow.keras import layers
 
+# LENET17 MODEL BUILDING ############################################################################################
 def get_model(width:int, height:int, depth:int) -> keras.Model:
     """Instanciate a LeNet-like 3D CNN architecture with 17 layers."""
     params = load_params()
@@ -30,7 +31,7 @@ def get_model(width:int, height:int, depth:int) -> keras.Model:
     x = layers.GlobalAveragePooling3D()(x)
     x = layers.Dense(units=512, activation="relu")(x)
     x = layers.Dropout(dropout)(x)
-    outputs = layers.Dense(units=1, activation="sigmoid")(x) # TODO units=num_classes
+    outputs = layers.Dense(units=1, activation="sigmoid")(x) # TODO (units=num_classes, activation="softmax")
     # Define and return the model
     model = keras.Model(inputs, outputs, name="LeNet17")
     return model
