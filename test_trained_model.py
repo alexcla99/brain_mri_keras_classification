@@ -1,5 +1,5 @@
 from utils import info, load_params
-from dataset import get_test_dataset
+from dataset import load_dataset
 from tf_config import tf_configure
 
 from tensorflow import keras
@@ -7,6 +7,7 @@ import tensorflow as tf
 import numpy as np
 import os, sys, traceback
 
+# TRAINED MODEL TEST ################################################################################################
 if __name__ == "__main__":
     """Main program to test any trained model from scratch."""
     metadata = load_params()["metadata"]
@@ -28,7 +29,8 @@ if __name__ == "__main__":
             tf_configure()
             # Load the test dataset
             info("Loading the test dataset")
-            test_dataset = get_test_dataset(train_data_dir)
+            train_dataset, val_dataset, test_datast = load_dataset(train_data_dir)
+            info("Using test samples" % len([_ for _ in test_dataset]))
             # Load the selected model
             info("Loading the selected model (%s)" % model_name)
             if model_name == available_models[0]:
@@ -53,11 +55,11 @@ if __name__ == "__main__":
             # Save predictions and ground truths
             info("Saving predictions")
             np.save(
-            	os.path.join(results_dir, model_name, "test_trained_model_predictions.npy"),
+            	os.path.join(results_dir, model_name, "trained_model_test_predictions.npy"),
             	np.array(predictions, dtype=np.float32), allow_pickle=False
             )
             np.save(
-                os.path.join(results_dir, model_name, "test_trained_model_ground_truths.npy"),
+                os.path.join(results_dir, model_name, "trained_model_test_ground_truths.npy"),
                 np.array(ground_truths, dtype=np.float32), allow_pickle=False
             )
             # End of the program
