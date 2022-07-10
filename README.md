@@ -6,23 +6,23 @@ Version: 2.0.0
 ### Folder content:
 
 ```
-+-+- models/                           # The folder containing available models
-| +--- LeNet17.py                      # The LeNet17 model
++-+- models/                  # The folder containing available models
+| +--- LeNet17.py             # The LeNet17 model
 |
-+--- results/                          # The folder containing the train, transfer learning and tests results
-+--- train_data/                       # The folder containing the dataset for training from scratch
-+--- ft_data/                          # The folder containing the dataset for fine tuning
-+--- __init__.py                       # An empty file to make this directory being a Python library
-+--- dataset.py                        # The dataset loader
-+--- fine_tune.py                      # A script to apply fine tuning on a model
-+--- README.md                         # This file
-+--- requirements.txt                  # The Python libraries to be installed in order to run the project
-+--- settings.json                     # The settings of the model and the train phase
-+--- test_trained_model.py             # A script to test a trained model
-+--- test_fine_tuned_model.py          # A script to test a fine tuned model
-+--- tf_config.py                      # A script to configure TensorFlow
-+--- train.py                          # A script to train from scratch a model
-+--- utils.py                          # Some utils
++--- results/                 # The folder containing the train, transfer learning and tests results
++--- train_data/              # The folder containing the dataset for training from scratch
++--- ft_data/                 # The folder containing the dataset for fine tuning
++--- __init__.py              # An empty file to make this directory being a Python library
++--- dataset.py               # The dataset loader
++--- fine_tune.py             # A script to apply fine tuning on a model
++--- README.md                # This file
++--- requirements.txt         # The Python libraries to be installed in order to run the project
++--- settings.json            # The settings of the model and the train phase
++--- test_trained_model.py    # A script to test a trained model
++--- test_fine_tuned_model.py # A script to test a fine tuned model
++--- tf_config.py             # A script to configure TensorFlow
++--- train.py                 # A script to train from scratch a model
++--- utils.py                 # Some utils
 ```
 
 ### Usage:
