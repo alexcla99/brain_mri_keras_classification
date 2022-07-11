@@ -108,7 +108,7 @@ def load_dataset(
     )
     # Only rescale
     validation_dataset = (
-        validation_loader.shuffle(len(x_val))
+        val_loader.shuffle(len(x_val))
         .map(val_test_preprocessing)
         .batch(batch_size)
         .prefetch(buffer_size=AUTOTUNE)
