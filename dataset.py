@@ -13,8 +13,14 @@ def load_dataset(
     norm_type:str=None,
     img_size:str=None) -> (tf.data.Dataset, tf.data.Dataset, tf.data.Dataset):
     """Instanciate both train and validation data loaders."""
-    normal_data_path = [os.path.join(os.getcwd(), src, "normal", x) for x in os.listdir(src)]
-    abnormal_data_path = [os.path.join(os.getcwd(), src, "abnormal", x) for x in os.listdir(src)]
+    normal_data_path = [
+        os.path.join(os.getcwd(), src, "normal", x)
+        for x in os.listdir(os.path.join(src, "normal"))
+    ]
+    abnormal_data_path = [
+        os.path.join(os.getcwd(), src, "abnormal", x) 
+        for x in os.listdir(os.path.join(src, "abnormal"))
+    ]
     normal_data = np.array(
         [process_scan(path, norm_type=norm_type, img_size=img_size) for path in normal_data_path]
     )
