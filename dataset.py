@@ -1,4 +1,5 @@
 from utils import load_params, process_scan, info, train_preprocessing, val_test_preprocessing
+from sklearn.model_selection import train_test_split
 
 import tensorflow as tf
 import numpy as np
