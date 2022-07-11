@@ -64,12 +64,12 @@ def load_dataset(
         shuffle = False
     )
     # Create the final train / val / test datasets and shuffle them
-    x_train = np.concatenate((abnormal_x_train, control_x_train), axis=0)
-    x_val = np.concatenate((abnormal_x_val, control_x_val), axis=0)
-    x_test = np.concatenate((abnormal_x_test, control_x_test), axis=0)
-    y_train = np.concatenate((abnormal_y_train, control_y_train), axis=0)
-    y_val = np.concatenate((abnormal_y_val, control_y_val), axis=0)
-    y_test = np.concatenate((abnormal_y_test, control_y_test), axis=0)
+    x_train = np.concatenate((abnormal_x_train, normal_x_train), axis=0)
+    x_val = np.concatenate((abnormal_x_val, normal_x_val), axis=0)
+    x_test = np.concatenate((abnormal_x_test, normal_x_test), axis=0)
+    y_train = np.concatenate((abnormal_y_train, normal_y_train), axis=0)
+    y_val = np.concatenate((abnormal_y_val, normal_y_val), axis=0)
+    y_test = np.concatenate((abnormal_y_test, normal_y_test), axis=0)
     np.random.seed(random_seed)
     # Shuffle indexes of the train/validation/test dataset
     train_indexes = np.random.permutation(len(x_train))
