@@ -29,7 +29,12 @@ if __name__ == "__main__":
             tf_configure()
             # Load the test dataset
             info("Loading the test dataset")
-            train_dataset, val_dataset, test_dataset = load_dataset(tl_data_dir)
+            train_dataset, val_dataset, test_dataset = load_dataset(
+                train_data_dir,
+                augment=False,
+                norm_type="threshold",
+                img_size=img_size
+            )
             # Load the selected model
             info("Loading the selected model (%s)" % model_name)
             if model_name == available_models[0]:
