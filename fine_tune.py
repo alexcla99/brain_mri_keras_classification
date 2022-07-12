@@ -33,7 +33,12 @@ if __name__ == "__main__":
             params = load_params()[model_name]
             # Build both train and validation datasets
             info("Building datasets")
-            train_dataset, val_dataset, test_datast = load_dataset(train_data_dir)
+            train_dataset, val_dataset, test_datast = load_dataset(
+                train_data_dir,
+                augment=True,
+                norm_type="threshold",
+                img_size=img_size
+            )
             info("Using %d train samples and %d validation samples" % (
                 len([_ for _ in train_dataset]),
                 len([_ for _ in val_dataset])
