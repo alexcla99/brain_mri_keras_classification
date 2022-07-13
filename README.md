@@ -6,6 +6,12 @@ Version: 2.0.0
 ### Folder content:
 
 ```
++-+- multi_train              # A folder containing scripts to test a model with cross configurations
+| +--- dataset.py             # An override of the original dataset.py file
+| +--- fine_tune_v2.py        # A new version of fine_tune.py file
+| +--- train_all.py           # A script to run both training and fine tuning with multiple configurations
+| +--- train_v2.py            # A new version of train.py file
+|
 +-+- models/                  # The folder containing available models
 | +--- LeNet17.py             # The LeNet17 model
 |
