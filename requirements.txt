@@ -1,4 +1,4 @@
-tensorflow==2.8.0   # The backend used to compute models (also installable with conda)
+tensorflow==2.2.0   # The backend used to compute models (also installable with conda)
 numpy==1.22.4       # Library used to do matrixes computations (also installable with conda)
 scikit-learn==1.0.2 # Library for ata science (also installable with conda)
 scipy==1.8.0        # Library for scientific computations (also installable with conda)
