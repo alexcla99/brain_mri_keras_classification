@@ -12,8 +12,8 @@ class ModelTrainer:
     def __init__(self, model_name:str) -> None:
 	# Parameters to try
         self.__normalisation_sizes:list = [
-            # (512, 512, 32), # Minimal shape computed in "Debug.py"
-            # (512, 512, 72), # Maximal shape computed in "Debug.py"
+            # (512, 512, 32),
+            # (512, 512, 72),
             (128, 128, 64),
             (113, 113, 117)
         ]
@@ -40,10 +40,10 @@ class ModelTrainer:
                     for data_augmentation in self.__data_augmentation:
                         # Gathering current settings
                         self.__current_settings = {
-                            "normalization_size": normalization_size, # OK (for both TRAIN and FT)
-                            "normalization_type": normalization_type, # OK (for both TRAIN and FT)
-                            "data_augmentation": data_augmentation,   # OK
-                            "method": method                          # OK
+                            "normalization_size": normalization_size,
+                            "normalization_type": normalization_type,
+                            "data_augmentation": data_augmentation,
+                            "method": method
                         }
                         self.__res_folder = "train_%d" % self.__counter
                         # Running the whole phases with the selected settings
@@ -75,11 +75,7 @@ if __name__ == "__main__":
     # Starting a fresh session
     tf.keras.backend.clear_session()
     tf_configure()
-    # Running on multiple GPUs
-    # tf.debugging.set_log_device_placement(True)
-    # gpus = tf.config.list_logical_devices('GPU')
-    # strategy = tf.distribute.MirroredStrategy(gpus)
-    # with strategy.scope():
+    # Running on a single GPU
     with tf.device("/device:GPU:0"):
         # Instanciating the trainer
         model_trainer = ModelTrainer(model_name="LeNet17")
