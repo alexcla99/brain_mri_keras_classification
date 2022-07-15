@@ -46,7 +46,7 @@ def run_train(model_name:str, settings:dict, res_folder:str) -> None:
         # mirrored_strategy = tf.distribute.MirroredStrategy()
         # with mirrored_strategy.scope():
         model = get_model(img_size[0], img_size[1], img_size[-1])
-        tf.print(model.summary(), output_stream=sys.stdout)
+        model.summary(print_fn=tf.print(output_stream=sys.stdout))
         # Compile the model
         tf.print("Compiling the model", output_stream=sys.stdout)
         lr_schedule = keras.optimizers.schedules.ExponentialDecay(
@@ -73,7 +73,7 @@ def run_train(model_name:str, settings:dict, res_folder:str) -> None:
         )
         # Train the model
         tf.print("Training the model", output_stream=sys.stdout)
-        model.fit(
+        history = model.fit(
             train_dataset,
             validation_data=val_dataset,
             epochs=params["epochs"],
@@ -92,7 +92,7 @@ def run_train(model_name:str, settings:dict, res_folder:str) -> None:
         )
         # Save model's history
         tf.print("Saving model's history", output_stream=sys.stdout)
-        history = {
+        full_history = {
             params["metrics"][0]: [],
             "val_%s" % params["metrics"][0]: [],
             "loss": [],
@@ -100,10 +100,10 @@ def run_train(model_name:str, settings:dict, res_folder:str) -> None:
             "evaluation": evaluation
         }
         for i, metric in enumerate([params["metrics"][0], "loss"]):
-            history[metric].append(model.history.history[metric])
-            history["val_%s" % metric].append(model.history.history["val_%s" % metric])
+            full_history[metric].append(history.history[metric])
+            full_history["val_%s" % metric].append(history.history["val_%s" % metric])
         with open(os.path.join(results_dir, "%s_metrics.json" % res_folder), "w+") as handle:
-            handle.write(json.dumps(history))
+            handle.write(json.dumps(full_history))
             handle.close()
         # End of the program
         tf.print("Training done", output_stream=sys.stdout)
