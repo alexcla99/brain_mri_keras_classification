@@ -10,7 +10,7 @@ class ModelTrainer:
 
     # Builder
     def __init__(self, model_name:str) -> None:
-	# Parameters to try
+    # Parameters to try
         self.__normalisation_sizes:list = [
             # (512, 512, 32),
             # (512, 512, 72),
