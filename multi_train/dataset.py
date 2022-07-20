@@ -102,7 +102,6 @@ def load_dataset(
         train_dataset = train_loader.map(val_test_preprocessing)
     train_dataset = (
         train_loader.shuffle(len(x_train))
-        .map(train_preprocessing)
         .batch(batch_size)
         .prefetch(buffer_size=AUTOTUNE)
     )
