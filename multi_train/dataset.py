@@ -1,4 +1,4 @@
-from utils import load_params, process_scan, info, train_preprocessing, val_test_preprocessing
+from utils import load_params, process_scan, info, scipy_rotate, train_preprocessing, val_test_preprocessing
 from sklearn.model_selection import train_test_split
 
 import tensorflow as tf
@@ -7,12 +7,22 @@ import os
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
+# TRAIN DATA BALANCING BY OVERSAMPLING THE SMALLEST CLASS ###########################################################
+# https://towardsdatascience.com/how-to-balance-a-dataset-in-python-36dff9d12704
+def balance_train_dataset(normal_data:np.array, abnormal_data:np.array) -> np.array:
+    ori_abnormal_data = abnormal_data.copy()
+    while abnormal_data.shape[0] < normal_data.shape[0]:
+        abnormal_mri = scipy_rotate(np.random.choice(abnormal_data))
+        abnormal_data = np.append(abnormal_data, abnormal_mri, axis=0)
+    return abnormal_data
+
 # DATASETS LOADING ##################################################################################################
 def load_dataset(
     src:str,
     augment:bool=False,
     norm_type:str=None,
-    img_size:str=None) -> (tf.data.Dataset, tf.data.Dataset, np.array, np.array): # tf.data.Dataset):
+    img_size:str=None,
+    balance:bool=False) -> (tf.data.Dataset, tf.data.Dataset, np.array, np.array): # tf.data.Dataset):
     """Instanciate both train and validation data loaders."""
     normal_data_path = [
         os.path.join(os.getcwd(), src, "normal", x)
@@ -22,20 +32,23 @@ def load_dataset(
         os.path.join(os.getcwd(), src, "abnormal", x) 
         for x in os.listdir(os.path.join(src, "abnormal"))
     ]
+    # Loading params and datasets building
+    settings = load_params()
+    data_rep = settings["preprocessing"]["data_rep"]
+    random_seed = settings["preprocessing"]["random_seed"]
+    batch_size = settings["dataset"]["batch_size"]
+    np.random.seed(random_seed)
     normal_data = np.array(
         [process_scan(path, norm_type=norm_type, img_size=img_size) for path in normal_data_path]
     )
     abnormal_data = np.array(
         [process_scan(path, norm_type=norm_type, img_size=img_size) for path in abnormal_data_path]
     )
+    if balance == True:
+        abnormal_data = balance_train_dataset(normal_data, abnormal_data)
     normal_labels = np.array([0. for _ in range(len(normal_data))])
     abnormal_labels = np.array([1. for _ in range(len(abnormal_data))])
     assert len(abnormal_data) + len(normal_data) == len(abnormal_labels) + len(normal_labels)
-    # Loading params and datasets building
-    settings = load_params()
-    data_rep = settings["preprocessing"]["data_rep"]
-    random_seed = settings["preprocessing"]["random_seed"]
-    batch_size = settings["dataset"]["batch_size"]
     # Split them into abnormal and control train / val / test datasets
     # Data are not shuffled yet in order to get the same MRIs in the different subsets
     # So the dataloader can be called several times (in differents tasks)
@@ -70,7 +83,6 @@ def load_dataset(
     y_train = np.concatenate((abnormal_y_train, normal_y_train), axis=0)
     y_val = np.concatenate((abnormal_y_val, normal_y_val), axis=0)
     y_test = np.concatenate((abnormal_y_test, normal_y_test), axis=0)
-    np.random.seed(random_seed)
     # Shuffle indexes of the train/validation/test dataset
     train_indexes = np.random.permutation(len(x_train))
     val_indexes = np.random.permutation(len(x_val))
