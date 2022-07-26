@@ -8,7 +8,6 @@ import os
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 # TRAIN DATA BALANCING BY OVERSAMPLING THE SMALLEST CLASS ###########################################################
-# https://towardsdatascience.com/how-to-balance-a-dataset-in-python-36dff9d12704
 def balance_train_dataset(normal_data:np.array, abnormal_data:np.array) -> np.array:
     ori_abnormal_data = abnormal_data.copy()
     while abnormal_data.shape[0] < normal_data.shape[0]:
