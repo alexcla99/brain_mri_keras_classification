@@ -10,6 +10,7 @@ Version: 2.0.0
 | +--- dataset.py             # An override of the original dataset.py file
 | +--- fine_tune_v2.py        # A new version of fine_tune.py file
 | +--- train_all.py           # A script to run both training and fine tuning with multiple configurations
+| +--- train_all_balance.py   # The same script as above with balancing the train dataset
 | +--- train_v2.py            # A new version of train.py file
 |
 +-+- models/                  # The folder containing available models
