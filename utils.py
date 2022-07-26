@@ -76,30 +76,30 @@ def process_scan(path:str, norm_type:str=None, img_size:tuple=None) -> np.ndarra
 # DATASETS PREPROCESSING ############################################################################################
 @tf.function
 def rotate(volume:tf.Tensor) -> tf.Tensor:
-    """Rotate the volume by a fex degrees."""
-    def scipy_rotate(volume):
-        # Define some rotation angles
-        angles = [-20, -10, -5, 5, 10, 20]
-        # Randomly select one
-        angle = np.random.choice(angles)
-        # Rotate volume
-        volume = ndimage.rotate(volume, angle, reshape=False)
-        volume[volume < 0] = 0
-        volume[volume > 1] = 1
-        return volume
-    # Calling the above function
+    """Random tf tensor rotation."""
     random_seed = load_params()["preprocessing"]["random_seed"]
     np.random.seed(random_seed)
     augmented_volume = tf.numpy_function(scipy_rotate, [volume], tf.float32)
     return augmented_volume
 
+def scipy_rotate(volume:np.array) -> np.array:
+    """Rotate the volume by a few degrees."""
+    angles = [-20, -10, -5, 5, 10, 20]
+    # Randomly select one of the upper angles
+    angle = np.random.choice(angles)
+    # Rotate volume
+    volume = ndimage.rotate(volume, angle, reshape=False)
+    volume[volume < 0] = 0
+    volume[volume > 1] = 1
+    return volume
+
 def train_preprocessing(volume:tf.Tensor, label:tf.Tensor) -> (tf.Tensor, tf.Tensor):
     """Preprocessing done for the train dataset."""
     volume = rotate(volume)
-    volume = volume = tf.expand_dims(volume, axis=-1)
+    volume = tf.expand_dims(volume, axis=-1)
     return volume, label
 
 def val_test_preprocessing(volume:tf.Tensor, label:tf.Tensor) -> (tf.Tensor, tf.Tensor):
     """Preprocessing done for both val / test datasets."""
-    volume = volume = tf.expand_dims(volume, axis=-1)
+    volume = tf.expand_dims(volume, axis=-1)
     return volume, label
