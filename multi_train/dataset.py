@@ -14,7 +14,7 @@ def load_dataset(
     norm_type:str=None,
     img_size:str=None,
     balance:bool=False,
-    healthy_reduction:int=None) -> (tf.data.Dataset, tf.data.Dataset, np.array, np.array): # tf.data.Dataset):
+    healthy_reduction:int=None) -> (tf.data.Dataset, tf.data.Dataset, np.array, np.array):
     """Instanciate both train and validation data loaders."""
     normal_data_path = [
         os.path.join(os.getcwd(), src, "normal", x)
@@ -30,26 +30,29 @@ def load_dataset(
     random_seed = settings["preprocessing"]["random_seed"]
     batch_size = settings["dataset"]["batch_size"]
     np.random.seed(random_seed)
-    normal_data = np.array(
-        [process_scan(path, norm_type=norm_type, img_size=img_size) for path in normal_data_path]
+    abnormal_data = np.array(
+        [process_scan(path, norm_type=norm_type, img_size=img_size) for path in abnormal_data_path]
     )
-    abnormal_data = np.array(abnormal_data_path)
-    # Reducing abnormal dataset according to a given number of samples
-    if healthy_reduction is not None:
-        abnormal_data = abnormal_data[:healthy_reduction]
+    normal_data = np.array(
+            [process_scan(path, norm_type=norm_type, img_size=img_size) for path in normal_data_path]
+        )
+    print("abnormal data shape: %s" % str(abnormal_data.shape))
+    print("normal data shape: %s" % str(normal_data.shape))
     # Balancing both normal and abnormal datasets
     if balance == True:
         normal_data = balance_train_dataset(
             normal_data,
-            abnormal_data,
+            abnormal_data.shape[0],
             normal_data_path,
             norm_type=norm_type,
             img_size=img_size
         )
-    else:
-        abnormal_data = np.array(
-            [process_scan(path, norm_type=norm_type, img_size=img_size) for path in abnormal_data_path]
-        )
+    print("normal data shape (balance): %s" % str(normal_data.shape))
+    # Reducing abnormal dataset according to a given number of samples
+    if healthy_reduction is not None:
+        abnormal_data = abnormal_data[:healthy_reduction]
+    print("abnormal data shape (reduction): %s" % str(abnormal_data.shape))
+    # Creating associated labels
     normal_labels = np.array([0. for _ in range(len(normal_data))])
     abnormal_labels = np.array([1. for _ in range(len(abnormal_data))])
     assert len(abnormal_data) + len(normal_data) == len(abnormal_labels) + len(normal_labels)
