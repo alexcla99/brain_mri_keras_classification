@@ -1,4 +1,4 @@
-from utils import load_params, process_scan, info, scipy_rotate, train_preprocessing, val_test_preprocessing
+from utils import load_params, process_scan, info, balance_train_dataset, train_preprocessing, val_test_preprocessing
 from sklearn.model_selection import train_test_split
 
 import tensorflow as tf
@@ -7,21 +7,14 @@ import os
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-# TRAIN DATA BALANCING BY OVERSAMPLING THE SMALLEST CLASS ###########################################################
-def balance_train_dataset(normal_data:np.array, abnormal_data:np.array) -> np.array:
-    ori_abnormal_data = abnormal_data.copy()
-    while abnormal_data.shape[0] < normal_data.shape[0]:
-        abnormal_mri = scipy_rotate(np.random.choice(abnormal_data))
-        abnormal_data = np.append(abnormal_data, abnormal_mri, axis=0)
-    return abnormal_data
-
 # DATASETS LOADING ##################################################################################################
 def load_dataset(
     src:str,
     augment:bool=False,
     norm_type:str=None,
     img_size:str=None,
-    balance:bool=False) -> (tf.data.Dataset, tf.data.Dataset, np.array, np.array): # tf.data.Dataset):
+    balance:bool=False,
+    healthy_reduction:int=None) -> (tf.data.Dataset, tf.data.Dataset, np.array, np.array): # tf.data.Dataset):
     """Instanciate both train and validation data loaders."""
     normal_data_path = [
         os.path.join(os.getcwd(), src, "normal", x)
@@ -40,11 +33,23 @@ def load_dataset(
     normal_data = np.array(
         [process_scan(path, norm_type=norm_type, img_size=img_size) for path in normal_data_path]
     )
-    abnormal_data = np.array(
-        [process_scan(path, norm_type=norm_type, img_size=img_size) for path in abnormal_data_path]
-    )
+    abnormal_data = np.array(abnormal_data_path)
+    # Reducing abnormal dataset according to a given number of samples
+    if healthy_reduction is not None:
+        abnormal_data = abnormal_data[:healthy_reduction]
+    # Balancing both normal and abnormal datasets
     if balance == True:
-        abnormal_data = balance_train_dataset(normal_data, abnormal_data)
+        normal_data = balance_train_dataset(
+            normal_data,
+            abnormal_data,
+            normal_data_path,
+            norm_type=norm_type,
+            img_size=img_size
+        )
+    else:
+        abnormal_data = np.array(
+            [process_scan(path, norm_type=norm_type, img_size=img_size) for path in abnormal_data_path]
+        )
     normal_labels = np.array([0. for _ in range(len(normal_data))])
     abnormal_labels = np.array([1. for _ in range(len(abnormal_data))])
     assert len(abnormal_data) + len(normal_data) == len(abnormal_labels) + len(normal_labels)
