@@ -15,7 +15,7 @@ class ModelTrainer:
             # (512, 512, 32),
             # (512, 512, 72),
             (128, 128, 64),
-            (113, 113, 117)
+            (113, 113, 137)
         ]
         self.__normalization_types:list = ["minmax", "threshold"]
         self.__methods:list = ["tl", "ft"]
