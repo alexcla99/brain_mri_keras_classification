@@ -36,8 +36,6 @@ def load_dataset(
     normal_data = np.array(
             [process_scan(path, norm_type=norm_type, img_size=img_size) for path in normal_data_path]
         )
-    print("abnormal data shape: %s" % str(abnormal_data.shape))
-    print("normal data shape: %s" % str(normal_data.shape))
     # Balancing both normal and abnormal datasets
     if balance == True:
         normal_data = balance_train_dataset(
@@ -47,11 +45,9 @@ def load_dataset(
             norm_type=norm_type,
             img_size=img_size
         )
-    print("normal data shape (balance): %s" % str(normal_data.shape))
     # Reducing abnormal dataset according to a given number of samples
     if healthy_reduction is not None:
         abnormal_data = abnormal_data[:healthy_reduction]
-    print("abnormal data shape (reduction): %s" % str(abnormal_data.shape))
     # Creating associated labels
     normal_labels = np.array([0. for _ in range(len(normal_data))])
     abnormal_labels = np.array([1. for _ in range(len(abnormal_data))])
