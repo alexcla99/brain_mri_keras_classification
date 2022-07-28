@@ -6,7 +6,7 @@ import tensorflow as tf
 import os, json, traceback, sys
 
 # MODEL FINE TUNING #################################################################################################
-def run_fine_tune(model_name:str, settings:dict, res_folder:str, balance:bool):
+def run_fine_tune(model_name:str, settings:dict, res_folder:str, balance:bool, healthy_reduction:int):
     try:
         # Starting a fresh session
         tf.print("##### FINE TUNING PHASE #####", output_stream=sys.stdout)
@@ -27,7 +27,8 @@ def run_fine_tune(model_name:str, settings:dict, res_folder:str, balance:bool):
             augment=settings["data_augmentation"],
             norm_type=settings["normalization_type"],
             img_size=img_size,
-            balance=balance
+            balance=balance,
+            healthy_reduction=healthy_reduction
         )
         tf.print("Using %d train samples and %d validation samples" % (
             len([_ for _ in train_dataset]),
