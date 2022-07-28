@@ -103,3 +103,25 @@ def val_test_preprocessing(volume:tf.Tensor, label:tf.Tensor) -> (tf.Tensor, tf.
     """Preprocessing done for both val / test datasets."""
     volume = tf.expand_dims(volume, axis=-1)
     return volume, label
+
+# TRAIN DATA BALANCING BY OVERSAMPLING THE SMALLEST CLASS ###########################################################
+def balance_train_dataset(
+    normal_data:np.array,
+    abnormal_data:np.array,
+    normal_data_path:list,
+    norm_type:str=None,
+    img_size:tuple=None) -> np.array:
+    ori_abnormal_data = abnormal_data.copy()
+    while normal_data.shape[0] < abnormal_data.shape[0]:
+        sample = np.random.choice(normal_data_path)
+        normal_mri = np.array(nib.load(sample).get_fdata(), dtype=float)
+        normal_mri += np.random.normal(
+            loc=load_params()["preprocessing"]["mean"],
+            scale=load_params()["preprocessing"]["stddev"],
+            size=normal_mri.shape)
+        if norm_type is not None:
+            normal_mri = normalize(normal_mri, method=norm_type)
+        if img_size is not None:
+            normal_mri = resize_volume(normal_mri, new_size=img_size)
+        normal_data = np.append(normal_data, normal_mri, axis=0)
+    return normal_data
