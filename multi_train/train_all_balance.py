@@ -53,13 +53,15 @@ class ModelTrainer:
                             self.__model_name,
                             self.__current_settings,
                             self.__res_folder,
-                            True
+                            True,
+                            None
                         )
                         run_fine_tune(
                             self.__model_name,
                             self.__current_settings,
                             self.__res_folder,
-                            True
+                            True,
+                            None
                         )
                         tf.print("####################################################################################################", output_stream=sys.stdout)
                         # Updating the output
