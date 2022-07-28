@@ -1,18 +1,20 @@
 {
 	"metadata": {
 		"available_models": ["LeNet17"],
-		"train_data_dir": "train_data",
-		"ft_data_dir": "ft_data",
+		"train_data_dir": "../Anoxia_keras_models_v2/train_data",
+		"ft_data_dir": "../Anoxia_keras_models_v2/ft_data",
 		"normalization_size": [128, 128, 64],
 		"img_size": [113, 137, 113],
 		"results_dir": "results"
 	},
 	"preprocessing": {
 		"data_rep": [0.6, 0.2, 0.2],
-		"random_seed": 1337
+		"random_seed": 1337,
+		"mean": 0.210109,
+		"stddev": 0.347632
 	},
 	"dataset": {
-		"batch_size": 4,
+		"batch_size": 2,
 		"num_classes": 2
 	},
 	"LeNet17": {
